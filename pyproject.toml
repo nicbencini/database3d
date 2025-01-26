@@ -8,7 +8,7 @@ version = "0.1.1"
 authors = [
     {name = "Nicolo Bencini", email = "nicbencini@gmail.com"},
 ]
-description = "A library for building and visualising structural models."
+description = "SQL based library for building and visualising finite element models."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
