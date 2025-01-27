@@ -3,7 +3,7 @@ Contains the object classes for point load objects of the structural model.
 """
 
 import numpy as np
-from objects import element # pylint: disable=import-error
+from . import element # pylint: disable=import-error
 
 class PointLoad:
     """

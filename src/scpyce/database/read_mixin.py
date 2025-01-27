@@ -4,9 +4,9 @@ Contains functions for reading information from the SQLite database model.
 import sqlite3
 import numpy as np
 
-from objects import properties # pylint: disable=import-error
-from objects import element # pylint: disable=import-error
-from objects import load  # pylint: disable=import-error
+from ..objects import properties # pylint: disable=import-error
+from ..objects import element # pylint: disable=import-error
+from ..objects import load  # pylint: disable=import-error
 
 class ReadMixin:
 

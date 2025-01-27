@@ -4,9 +4,9 @@ Contains the object classes for element objects of the structural model.
 import uuid
 import numpy as np
 
-from geometry import vector_3d # pylint: disable=import-error
-from geometry import plane # pylint: disable=import-error
-from objects import properties # pylint: disable=import-error
+from ..geometry import vector_3d # pylint: disable=import-error
+from ..geometry import plane # pylint: disable=import-error
+from . import properties # pylint: disable=import-error
 
 class Node:
     """

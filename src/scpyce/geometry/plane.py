@@ -3,7 +3,7 @@ This module contains the functions for the geometrical manipulation of planes.
 """
 
 import numpy as np
-from geometry import vector_3d # pylint: disable=import-error
+from . import vector_3d # pylint: disable=import-error
 
 def plane_from_3pt(point_1, point_2, oreintation_vector, x_axis_oriented = True):
     """
