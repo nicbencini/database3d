@@ -7,12 +7,12 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from context import database # pylint: disable=import-error
+from context import model # pylint: disable=import-error
 from context import properties # pylint: disable=import-error
 from context import load # pylint: disable=import-error
 from context import element # pylint: disable=import-error
 
-db_path_truss = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_4_truss_test.db'
+db_path_truss = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_5_truss_test.db'
 
 class LindSolverTests(unittest.TestCase):
     """
@@ -22,7 +22,7 @@ class LindSolverTests(unittest.TestCase):
     def test_build_pyramid(self):
         """Test for 3 dimensional truss."""
 
-        structural_model = database.Model(db_path_truss)
+        structural_model = model.Model(db_path_truss)
         structural_model.build_tables()
 
         top_chord_list = []

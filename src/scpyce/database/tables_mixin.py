@@ -67,9 +67,8 @@ class TablesMixin:
             section TEXT NOT NULL,
             orientation_vector TEXT NOT NULL,
             release_a TEXT NOT NULL,
-            release_b TEXT NOT NULL,
-            PRIMARY KEY(node_a, node_b)
-        );
+            release_b TEXT NOT NULL
+            );
         """
         cur.execute(bar_table_schema)
 
@@ -94,9 +93,8 @@ class TablesMixin:
                 _id INTEGER NOT NULL,
                 x FLOAT NOT NULL,
                 y FLOAT NOT NULL,
-                z FLOAT NOT NULL,
-                PRIMARY KEY(x, y, z)
-            );
+                z FLOAT NOT NULL
+                );
             """
         cur.execute(node_table_schema)
 

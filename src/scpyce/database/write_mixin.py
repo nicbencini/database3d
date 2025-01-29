@@ -36,8 +36,15 @@ class WriteMixin:
             WHERE (node_a = ?)
             AND (node_b = ?)
             """
+        
+        bar_check_result = cur.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
 
-        if overwrite:
+        if bar_check_result is not None:
+            bar_id = bar_check_result[0]
+            warnings.warn(f'Bar not added because of overlap with bar {bar_id}.')
+
+
+        else:
             self.add_section(bar.section) # add section to database
 
             bar_query = """
@@ -60,11 +67,8 @@ class WriteMixin:
 
             bar_id = bar.name
 
-        else:
 
-            bar_check_result = cur.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
-            bar_id = bar_check_result[0]
-            warnings.warn(f'Bar not added because of overlap with bar {bar_id}.')
+            
 
         self.connection.commit()
 
