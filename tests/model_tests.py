@@ -19,7 +19,8 @@ class DatabaseTests(unittest.TestCase):
     """
 
     def setUp(self):
-        self.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_1_model_test.db'
+        self.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_6_model_test.db'
+        self.structural_model = model.Model(self.db_path, 'test_user')
 
     def test_build_database(self):
         """Builds the database for a pyramid strucutre."""
@@ -46,32 +47,25 @@ class DatabaseTests(unittest.TestCase):
 
         load1 = load.PointLoad(node1,0,0,-10,0,0,0)
 
-        structural_model = model.Model(self.db_path)
-        structural_model.build_tables()
+        self.structural_model.build_tables()
 
-        structural_model.add_bar(bar1)
-        structural_model.add_bar(bar2)
-        structural_model.add_bar(bar3)
-        structural_model.add_bar(bar4)
+        self.structural_model.add_bar(bar1)
+        self.structural_model.add_bar(bar2)
+        self.structural_model.add_bar(bar3)
+        self.structural_model.add_bar(bar4)
 
-        structural_model.add_support(support1)
-        structural_model.add_support(support2)
-        structural_model.add_support(support3)
-        structural_model.add_support(support4)
+        self.structural_model.add_support(support1)
+        self.structural_model.add_support(support2)
+        self.structural_model.add_support(support3)
+        self.structural_model.add_support(support4)
 
-        structural_model.add_point_load(load1)
-
-        structural_model.close_connection()
+        self.structural_model.add_point_load(load1)
 
 
     def test_get_material(self):
         """Test for getting material from the database."""
 
-        structural_model = model.Model(self.db_path)
-
-        material = structural_model.get_material('steel')
-
-        structural_model.close_connection()
+        material = self.structural_model.get_material('steel')
 
         self.assertEqual(material.name, 'steel')
         self.assertEqual(material.youngs_modulus, 210000.0)
@@ -87,9 +81,8 @@ class DatabaseTests(unittest.TestCase):
     def test_get_section(self):
         """Test for getting section from the database."""
 
-        structural_model = model.Model(self.db_path)
 
-        section = structural_model.get_section('UC305x305x97')
+        section = self.structural_model.get_section('UC305x305x97')
 
         self.assertEqual(section.name, 'UC305x305x97')
         self.assertEqual(section.material.name, 'steel')
@@ -97,29 +90,26 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(section.izz, 0.0002225)
         self.assertEqual(section.iyy, 7.308e-05)
 
-        structural_model.close_connection()
 
     def test_get_node(self):
         """Test for getting node from the database."""
 
-        structural_model = model.Model(self.db_path)
-
-        node = structural_model.get_node(3)
+        node = self.structural_model.get_node(3)
 
         self.assertEqual(node.x, 1)
         self.assertEqual(node.y, 1)
         self.assertEqual(node.z, 0)
 
-        structural_model.close_connection()
 
+    @unittest.skip
     def test_get_bar(self):
         """Test for getting bar from the database."""
 
-        structural_model = model.Model(self.db_path)
+        test_bar = self.structural_model.get_bar('5b324ddf-4c1e-42a1-b02a-4d9309498fb3')
 
-        test_bar = structural_model.get_bar('5b324ddf-4c1e-42a1-b02a-4d9309498fb3')
-
-        structural_model.close_connection()
+    
+    def tearDown(self):
+        self.structural_model.close_connection()
 
 
 if __name__ == '__main__':

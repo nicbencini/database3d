@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from context import model # pylint: disable=import-error
+from scpyce import model # pylint: disable=import-error
 from context import properties # pylint: disable=import-error
 from context import load # pylint: disable=import-error
 from context import element # pylint: disable=import-error
@@ -58,7 +58,6 @@ class LindSolverTests(unittest.TestCase):
 
         load1 = load.PointLoad(top_chord_list[5].node_a,0,0,-10,0,0,0)
 
-
         for bar in top_chord_list:
             structural_model.add_bar(bar)
         
@@ -72,10 +71,7 @@ class LindSolverTests(unittest.TestCase):
         structural_model.add_support(support2)
 
         structural_model.add_point_load(load1)
-
-        #result = lind_solver.solve(structural_model)
-
-        #structural_model.close_connection()        
+      
 
 
 if __name__ == '__main__':

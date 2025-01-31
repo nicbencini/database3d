@@ -6,6 +6,7 @@ import warnings
 import sqlite3
 import numpy as np
 
+
 class WriteMixin:
 
     def add_bar(self, bar, /, *, overwrite=False):
@@ -360,3 +361,5 @@ class WriteMixin:
         cur.close()
 
         return node_index
+
+

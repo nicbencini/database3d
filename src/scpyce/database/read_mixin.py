@@ -222,4 +222,45 @@ class ReadMixin:
 
         return [self.get_point_load(data[0]) for data in load_data]
 
+    def get_node_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM element_node"
+
+        return curosr.execute(query).fetchone()[0]
+    
+    def get_bar_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM element_bar"
+
+        return curosr.execute(query).fetchone()[0]
+
+    def get_material_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM property_material"
+
+        return curosr.execute(query).fetchone()[0]
+
+    def get_section_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM property_section"
+
+        return curosr.execute(query).fetchone()[0]
+
+    def get_support_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM element_support"
+
+        return curosr.execute(query).fetchone()[0]
+    
+    def get_pointload_count(self):
+
+        curosr = self.connection.cursor()
+        query = f"SELECT COUNT(*) FROM load_pointload"
+
+        return curosr.execute(query).fetchone()[0]
 

@@ -26,6 +26,7 @@ class TablesMixin:
         """
 
         #Build object tables
+        self.build_info_table()
         self.build_bar_table()
         self.build_node_table()
         self.build_support_table()
@@ -44,6 +45,31 @@ class TablesMixin:
     def clear_all_tables():
 
         pass
+
+    def build_info_table(self):
+        cur = self.connection.cursor()
+
+        # create the database table if it doesn't exist
+        info_table_schema = """
+        CREATE TABLE IF NOT EXISTS model_info (
+            version INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT NOT NULL,
+            date timestamp NOT NULL,
+            nodes INTEGER NOT NULL,
+            bars INTEGER NOT NULL,
+            sections INTEGER NOT NULL,
+            materials INTEGER NOT NULL,
+            loads INTEGER NOT NULL,
+            supports INTEGER NOT NULL,
+            errors TEXT,
+            warnings TEXT,
+            run_time FLOAT NOT NULL
+            );
+        """
+        cur.execute(info_table_schema)
+
+        cur.close()
+
 
     def build_bar_table(self):
         """
