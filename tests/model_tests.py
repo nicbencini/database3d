@@ -11,8 +11,6 @@ from context import element # pylint: disable=import-error
 from context import properties # pylint: disable=import-error
 from context import load # pylint: disable=import-error
 
-
-
 class DatabaseTests(unittest.TestCase):
     """
     Tests for building the model database.
@@ -46,8 +44,6 @@ class DatabaseTests(unittest.TestCase):
         support4 = element.Support.pin(node5)
 
         load1 = load.PointLoad(node1,0,0,-10,0,0,0)
-
-        self.structural_model.build_tables()
 
         self.structural_model.add_bar(bar1)
         self.structural_model.add_bar(bar2)

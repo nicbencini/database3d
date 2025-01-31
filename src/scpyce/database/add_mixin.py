@@ -5,9 +5,44 @@ Description
 import warnings
 import sqlite3
 import numpy as np
+import datetime
 
 
 class WriteMixin:
+
+    def add_log(self, event_message):
+        """
+        Logs a model event.
+        
+        Parameters:
+        None
+
+        Returns:
+        None
+        """     
+
+        cur = self.connection.cursor()
+
+        version_query = """
+        INSERT INTO model_log (
+            version,
+            user, 
+            date,
+            event) 
+            VALUES 
+            (?,?,?,?)
+            """
+        version_value_string = (self.version,
+                                self.user,
+                                datetime.datetime.now(),
+                                event_message
+                                )
+
+        cur.execute(version_query, version_value_string)
+
+        self.connection.commit()
+
+        cur.close()
 
     def add_bar(self, bar, /, *, overwrite=False):
         """
@@ -42,7 +77,7 @@ class WriteMixin:
 
         if bar_check_result is not None:
             bar_id = bar_check_result[0]
-            warnings.warn(f'Bar not added because of overlap with bar {bar_id}.')
+            self.events.append(f'warning: bars merged at bar {bar_id}.')
 
 
         else:
@@ -68,8 +103,7 @@ class WriteMixin:
 
             bar_id = bar.name
 
-
-            
+            self.events.append(f'added: bar id = {bar_id}')
 
         self.connection.commit()
 
@@ -106,6 +140,7 @@ class WriteMixin:
         if node_check_result is not None:
 
             node_index = node_check_result[0]
+            self.events.append(f'warning: nodes merged at node {node_index}.')
 
 
         else:
@@ -123,7 +158,8 @@ class WriteMixin:
 
             cur.execute(node_query, node_value_string)
 
-
+            self.events.append(f'added: node id = {node_index}')
+        
         self.connection.commit()
 
         cur.close()
@@ -157,6 +193,7 @@ class WriteMixin:
         if material_check_result is not None:
 
             material_name = material_check_result[0]
+            self.events.append(f'warnging: material \'{material_name}\' already in database.')
 
         else:
 
@@ -185,6 +222,7 @@ class WriteMixin:
 
             material_name = material.name
 
+            self.events.append(f'added: material id = \'{material_name}\'')
 
         self.connection.commit()
 
@@ -219,6 +257,7 @@ class WriteMixin:
         if section_check_result is not None:
 
             section_name = section_check_result[0]
+            self.events.append(f'warning: section \'{section_name}\' already in database.')
 
         else:
 
@@ -242,6 +281,8 @@ class WriteMixin:
 
             section_name = section.name
 
+            self.events.append(f'added: section id = \'{section_name}\'')
+        
         self.connection.commit()
 
         cur.close()
@@ -277,6 +318,7 @@ class WriteMixin:
         if support_check_result is not None:
 
             support_index = support_check_result[0]
+            self.events.append(f'warning: support merged at node \'{node_index}\'.')
 
         else:
 
@@ -297,6 +339,8 @@ class WriteMixin:
                                     )
 
             cur.execute(support_query, support_value_string)
+
+            self.events.append(f'added: support id = {node_index}')
 
 
         self.connection.commit()
@@ -334,6 +378,7 @@ class WriteMixin:
         if pointload_check_result is not None:
 
             pointload_index = pointload_check_result[0]
+            self.events.append(f'warning: load merged at node \'{node_index}\'.')
 
         else:
 
@@ -354,6 +399,8 @@ class WriteMixin:
                                     )
 
             cur.execute(pointload_query, pointload_value_string)
+
+            self.events.append(f'added: point load id = {node_index}')
 
 
         self.connection.commit()

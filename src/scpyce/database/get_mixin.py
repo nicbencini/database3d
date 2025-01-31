@@ -10,6 +10,17 @@ from ..objects import load  # pylint: disable=import-error
 
 class ReadMixin:
 
+    def get_version(self):
+        
+        cursor = self.connection.cursor()
+        result = cursor.execute("SELECT * FROM model_info").fetchall()
+
+        if len(result) == 0:
+            return '0.0.0'
+
+        return result[-1][0]
+
+
     def get_material(self, material_name):
         """ 
         Gets a material object from the SQLite database tables based on a material name reference.

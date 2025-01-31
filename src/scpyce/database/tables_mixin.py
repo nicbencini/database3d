@@ -27,6 +27,7 @@ class TablesMixin:
 
         #Build object tables
         self.build_info_table()
+        self.build_log_table()
         self.build_bar_table()
         self.build_node_table()
         self.build_support_table()
@@ -52,7 +53,7 @@ class TablesMixin:
         # create the database table if it doesn't exist
         info_table_schema = """
         CREATE TABLE IF NOT EXISTS model_info (
-            version INTEGER PRIMARY KEY AUTOINCREMENT,
+            version TEXT PRIMARY KEY,
             user TEXT NOT NULL,
             date timestamp NOT NULL,
             nodes INTEGER NOT NULL,
@@ -70,6 +71,21 @@ class TablesMixin:
 
         cur.close()
 
+    def build_log_table(self):
+        cur = self.connection.cursor()
+
+        # create the database table if it doesn't exist
+        table_schema = """
+        CREATE TABLE IF NOT EXISTS model_log (
+            version TEXT NOT NULL,
+            user TEXT NOT NULL,
+            date timestamp NOT NULL,
+            event TEXT NOT NULL
+            );
+        """
+        cur.execute(table_schema)
+
+        cur.close() 
 
     def build_bar_table(self):
         """

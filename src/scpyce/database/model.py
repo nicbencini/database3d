@@ -10,13 +10,14 @@ modifying the database model.
 """
 
 import sqlite3
-import datetime
 
 from . import tables_mixin # pylint: disable=import-error
-from . import write_mixin # pylint: disable=import-error
-from . import read_mixin # pylint: disable=import-error
+from . import add_mixin # pylint: disable=import-error
+from . import get_mixin # pylint: disable=import-error
+from . import update_mixin # pylint: disable=import-error
+from . import delete_mixin # pylint: disable=import-error
 
-class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMixin):
+class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin, update_mixin.UpdateMixin, delete_mixin.DeleteMixin):
     """
     Used for creating the tables for the database model and 
     reading and writing into the databse. 
@@ -33,61 +34,15 @@ class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMix
     def __init__(self , file_path, user):
         self.database_path = file_path
         self.connection = sqlite3.connect(self.database_path)
+        self.build_tables()
+
         self.user = user
-        self.errors = None
-        self.warnings = None
+        self.version = self.update_version('0.0.1')
+        self.events = []
         self.runtime = 0
 
         print(f'Connected to {self.database_path}')
     
-    def update_version(self):
-        """
-        Adds a new model version
-        
-        Parameters:
-        None
-
-        Returns:
-        None
-        """     
-
-        cur = self.connection.cursor()
-
-        version_query = """
-        INSERT INTO model_info (
-            user, 
-            date, 
-            nodes, 
-            bars, 
-            sections, 
-            materials, 
-            loads, 
-            supports, 
-            errors, 
-            warnings, 
-            run_time) 
-            VALUES 
-            (?,?,?,?,?,?,?,?,?,?,?)
-            """
-
-        version_value_string = (self.user,
-                                datetime.datetime.now(),
-                                self.get_node_count(),
-                                self.get_bar_count(),
-                                self.get_section_count(),
-                                self.get_material_count(),
-                                self.get_pointload_count(),
-                                self.get_support_count(),
-                                self.errors,
-                                self.warnings,
-                                self.runtime
-                                )
-
-        cur.execute(version_query, version_value_string)
-
-        self.connection.commit()
-
-        cur.close()
 
     def close_connection(self):
         """
@@ -99,8 +54,9 @@ class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMix
         Returns:
         None        
         """
-
-        self.update_version()
+        if len(self.events) > 0:
+            self.update_logs(self.events)
+            self.update_model_info()
 
         self.connection.close()
         print( f'Connection to {self.database_path} closed')
