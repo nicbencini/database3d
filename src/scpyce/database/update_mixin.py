@@ -18,8 +18,26 @@ class UpdateMixin:
 
     def update_logs(self, event_list):
 
+
+        version_query = """
+        INSERT INTO model_log (
+            version,
+            user, 
+            date,
+            event) 
+            VALUES 
+            (?,?,?,?)
+            """
+        
         for event in event_list:
-            self.add_log(event)
+            version_value_string = (self.version,
+                                    self.user,
+                                    datetime.datetime.now(),
+                                    event
+                                    )
+
+            self.cursor.execute(version_query, version_value_string)
+
 
 
 
@@ -33,8 +51,6 @@ class UpdateMixin:
         Returns:
         None
         """     
-
-        cur = self.connection.cursor()
 
         version_query = """
         INSERT INTO model_info (
@@ -68,10 +84,7 @@ class UpdateMixin:
                                 self.runtime
                                 )
 
-        cur.execute(version_query, version_value_string)
+        self.cursor.execute(version_query, version_value_string)
 
-        self.connection.commit()
-
-        cur.close()
     
     

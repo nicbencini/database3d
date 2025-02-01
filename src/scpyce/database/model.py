@@ -34,6 +34,8 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
     def __init__(self , file_path, user):
         self.database_path = file_path
         self.connection = sqlite3.connect(self.database_path)
+        self.cursor = self.connection.cursor()
+
         self.build_tables()
 
         self.user = user
@@ -54,10 +56,15 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
         Returns:
         None        
         """
+
         if len(self.events) > 0:
             self.update_logs(self.events)
             self.update_model_info()
 
+        
+        self.cursor.close()
+        
+        self.connection.commit()
         self.connection.close()
         print( f'Connection to {self.database_path} closed')
     

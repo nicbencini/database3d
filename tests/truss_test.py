@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scpyce import model # pylint: disable=import-error
+from context import model # pylint: disable=import-error
 from context import properties # pylint: disable=import-error
 from context import load # pylint: disable=import-error
 from context import element # pylint: disable=import-error
@@ -22,8 +22,7 @@ class LindSolverTests(unittest.TestCase):
     def test_build_pyramid(self):
         """Test for 3 dimensional truss."""
 
-        structural_model = model.Model(db_path_truss)
-        structural_model.build_tables()
+        structural_model = model.Model(db_path_truss, 'test_user')
 
         top_chord_list = []
         bottom_chord_list = []
@@ -71,6 +70,8 @@ class LindSolverTests(unittest.TestCase):
         structural_model.add_support(support2)
 
         structural_model.add_point_load(load1)
+
+        structural_model.close_connection()
       
 
 

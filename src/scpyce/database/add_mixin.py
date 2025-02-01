@@ -61,8 +61,6 @@ class WriteMixin:
         """
         bar_id = None
 
-        cur = self.connection.cursor()
-
         node_a_index = self.add_node(bar.node_a)
         node_b_index = self.add_node(bar.node_b)
 
@@ -73,7 +71,7 @@ class WriteMixin:
             AND (node_b = ?)
             """
         
-        bar_check_result = cur.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
+        bar_check_result = self.cursor.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
 
         if bar_check_result is not None:
             bar_id = bar_check_result[0]
@@ -99,18 +97,16 @@ class WriteMixin:
                                 bar.release_b
                                 )
 
-            cur.execute(bar_query, bar_value_string)
+            self.cursor.execute(bar_query, bar_value_string)
 
             bar_id = bar.name
 
             self.events.append(f'added: bar id = {bar_id}')
 
-        self.connection.commit()
-
-        cur.close()
 
         return bar_id
 
+   
     def add_node(self, node):
         """
         Adds a node to the database. Returns the id of that node. 
@@ -125,8 +121,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         node_check_query = """
             SELECT _id
             FROM element_node
@@ -135,7 +129,7 @@ class WriteMixin:
             AND (z = ?)
             """
 
-        node_check_result = cur.execute(node_check_query,(node.x, node.y, node.z)).fetchone()
+        node_check_result = self.cursor.execute(node_check_query,(node.x, node.y, node.z)).fetchone()
 
         if node_check_result is not None:
 
@@ -145,7 +139,7 @@ class WriteMixin:
 
         else:
 
-            node_index = cur.execute("SELECT COUNT(*) FROM element_node").fetchone()[0]
+            node_index = self.cursor.execute("SELECT COUNT(*) FROM element_node").fetchone()[0]
 
             node_query = """
             INSERT INTO element_node (
@@ -156,15 +150,13 @@ class WriteMixin:
 
             node_value_string = (node_index, node.x, node.y, node.z)
 
-            cur.execute(node_query, node_value_string)
+            self.cursor.execute(node_query, node_value_string)
 
             self.events.append(f'added: node id = {node_index}')
-        
-        self.connection.commit()
-
-        cur.close()
 
         return node_index
+    
+    
 
     def add_material(self, material):
         """
@@ -180,15 +172,13 @@ class WriteMixin:
 
         material_name = None
 
-        cur = self.connection.cursor()
-
         material_check_query = """
             SELECT _id 
             FROM property_material
             WHERE (_id = ?)
             """
 
-        material_check_result = cur.execute(material_check_query,[material.name]).fetchone()
+        material_check_result = self.cursor.execute(material_check_query,[material.name]).fetchone()
 
         if material_check_result is not None:
 
@@ -218,15 +208,12 @@ class WriteMixin:
                                     material.embodied_carbon
                                     )
 
-            cur.execute(material_query, material_value_string)
+            self.cursor.execute(material_query, material_value_string)
 
             material_name = material.name
 
             self.events.append(f'added: material id = \'{material_name}\'')
 
-        self.connection.commit()
-
-        cur.close()
 
         return material_name
 
@@ -244,15 +231,13 @@ class WriteMixin:
 
         section_name = None
 
-        cur = self.connection.cursor()
-
         section_check_query = """
             SELECT _id 
             FROM property_section
             WHERE (_id = ?)
             """
 
-        section_check_result = cur.execute(section_check_query, [section.name]).fetchone()
+        section_check_result = self.cursor.execute(section_check_query, [section.name]).fetchone()
 
         if section_check_result is not None:
 
@@ -277,15 +262,12 @@ class WriteMixin:
                                     section.iyy
                                     )
 
-            cur.execute(section_query, section_value_string)
+            self.cursor.execute(section_query, section_value_string)
 
             section_name = section.name
 
             self.events.append(f'added: section id = \'{section_name}\'')
         
-        self.connection.commit()
-
-        cur.close()
 
         return section_name
 
@@ -303,8 +285,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         support_check_query = """
             SELECT node_index
             FROM element_support
@@ -313,7 +293,7 @@ class WriteMixin:
 
         node_index = self.add_node(support.node)
 
-        support_check_result = cur.execute(support_check_query, [node_index]).fetchone()
+        support_check_result = self.cursor.execute(support_check_query, [node_index]).fetchone()
 
         if support_check_result is not None:
 
@@ -338,14 +318,9 @@ class WriteMixin:
                                     support.mz
                                     )
 
-            cur.execute(support_query, support_value_string)
+            self.cursor.execute(support_query, support_value_string)
 
             self.events.append(f'added: support id = {node_index}')
-
-
-        self.connection.commit()
-
-        cur.close()
 
         return node_index
 
@@ -363,8 +338,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         pointload_check_query = """
             SELECT node_index
             FROM load_pointload
@@ -373,7 +346,7 @@ class WriteMixin:
 
         node_index = self.add_node(pointload.node)
 
-        pointload_check_result = cur.execute(pointload_check_query, [node_index]).fetchone()
+        pointload_check_result = self.cursor.execute(pointload_check_query, [node_index]).fetchone()
 
         if pointload_check_result is not None:
 
@@ -398,14 +371,9 @@ class WriteMixin:
                                     pointload.mz
                                     )
 
-            cur.execute(pointload_query, pointload_value_string)
+            self.cursor.execute(pointload_query, pointload_value_string)
 
             self.events.append(f'added: point load id = {node_index}')
-
-
-        self.connection.commit()
-
-        cur.close()
 
         return node_index
 

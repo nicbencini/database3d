@@ -48,7 +48,6 @@ class TablesMixin:
         pass
 
     def build_info_table(self):
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         info_table_schema = """
@@ -67,12 +66,10 @@ class TablesMixin:
             run_time FLOAT NOT NULL
             );
         """
-        cur.execute(info_table_schema)
+        self.cursor.execute(info_table_schema)
 
-        cur.close()
 
     def build_log_table(self):
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         table_schema = """
@@ -83,9 +80,7 @@ class TablesMixin:
             event TEXT NOT NULL
             );
         """
-        cur.execute(table_schema)
-
-        cur.close() 
+        self.cursor.execute(table_schema)
 
     def build_bar_table(self):
         """
@@ -97,8 +92,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         bar_table_schema = """
@@ -112,9 +105,7 @@ class TablesMixin:
             release_b TEXT NOT NULL
             );
         """
-        cur.execute(bar_table_schema)
-
-        cur.close()
+        self.cursor.execute(bar_table_schema)
 
     def build_node_table(self):
         """
@@ -126,8 +117,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         node_table_schema = """
@@ -138,9 +127,7 @@ class TablesMixin:
                 z FLOAT NOT NULL
                 );
             """
-        cur.execute(node_table_schema)
-
-        cur.close()
+        self.cursor.execute(node_table_schema)
 
     def build_support_table(self):
         """
@@ -152,8 +139,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         support_table_schema = """
@@ -167,9 +152,8 @@ class TablesMixin:
                 mz INTEGER NOT NULL
             );
             """
-        cur.execute(support_table_schema)
+        self.cursor.execute(support_table_schema)
 
-        cur.close()
 
     def build_point_load_table(self):
         """
@@ -181,8 +165,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         point_load_table_schema = """
@@ -196,9 +178,8 @@ class TablesMixin:
                 mz FLOAT NOT NULL
             );
             """
-        cur.execute(point_load_table_schema)
+        self.cursor.execute(point_load_table_schema)
 
-        cur.close()
 
     def build_section_table(self):
         """
@@ -210,8 +191,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         section_table_schema = """
@@ -223,9 +202,7 @@ class TablesMixin:
                 iyy FLOAT NOT NULL
             );
             """
-        cur.execute(section_table_schema)
-
-        cur.close()
+        self.cursor.execute(section_table_schema)
 
     def build_material_table(self):
         """
@@ -237,8 +214,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         material_table_schema = """
@@ -255,9 +230,7 @@ class TablesMixin:
                 embodied_carbon FLOAT
             );
             """
-        cur.execute(material_table_schema)
-
-        cur.close()
+        self.cursor.execute(material_table_schema)
 
     def build_node_displacements_table(self):
         """
@@ -269,8 +242,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         results_node_displacements = """
@@ -285,9 +256,7 @@ class TablesMixin:
             rz float NOT NULL
             ); """
 
-        cur.execute(results_node_displacements)
-
-        cur.close()
+        self.cursor.execute(results_node_displacements)
 
     def build_node_reactions_table(self):
         """
@@ -299,8 +268,6 @@ class TablesMixin:
         Returns:
         None
         """
-        # create a database cursor
-        cur = self.connection.cursor()
 
         # create the database table if it doesn't exist
         results_node_reactions = """ CREATE TABLE IF NOT EXISTS
@@ -315,6 +282,4 @@ class TablesMixin:
             mz float NOT NULL
             ); """
 
-        cur.execute(results_node_reactions)
-
-        cur.close()
+        self.cursor.execute(results_node_reactions)
