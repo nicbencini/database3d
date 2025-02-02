@@ -15,10 +15,10 @@ class DatabaseTests(unittest.TestCase):
     """
     Tests for building the model database.
     """
-
-    def setUp(self):
-        self.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_6_model_test.db'
-        self.structural_model = model.Model(self.db_path, 'test_user')
+    @classmethod
+    def setUpClass(cls):
+        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_6_model_test.db'
+        cls.structural_model = model.Model(cls.db_path, 'test_user', overwrite=True)
 
     def test_build_database(self):
         """Builds the database for a pyramid strucutre."""
@@ -103,9 +103,9 @@ class DatabaseTests(unittest.TestCase):
 
         test_bar = self.structural_model.get_bar('5b324ddf-4c1e-42a1-b02a-4d9309498fb3')
 
-    
-    def tearDown(self):
-        self.structural_model.close_connection()
+    @classmethod
+    def tearDownClass(cls):
+        cls.structural_model.close_connection()
 
 
 if __name__ == '__main__':

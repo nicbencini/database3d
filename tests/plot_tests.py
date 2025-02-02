@@ -14,7 +14,7 @@ model_plot = plot.Plot(structural_model)
 model_plot.show_model()
 model_plot.show_supports(show_text=True)
 model_plot.show_loads(show_text=True)
-#model_plot.show_displacements(5000)
+model_plot.show_displacements(50000)
 model_plot.plot()
 
 structural_model.close_connection()        

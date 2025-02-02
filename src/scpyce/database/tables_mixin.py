@@ -43,9 +43,19 @@ class TablesMixin:
         self.build_node_displacements_table()
         self.build_node_reactions_table()
     
-    def clear_all_tables():
+    def clear_all_tables(self):
 
-        pass
+        tables = self.get_tables()
+        for table, in tables:
+            #self.cursor.execute(f"DROP TABLE {table};")
+            self.cursor.execute(f"DELETE FROM {table}")
+        
+
+
+    def get_tables(self):
+        self.cursor.execute("SELECT name FROM sqlite_schema WHERE type='table';")
+        tables = self.cursor.fetchall()
+        return tables
 
     def build_info_table(self):
 

@@ -12,17 +12,19 @@ from context import properties # pylint: disable=import-error
 from context import load # pylint: disable=import-error
 from context import element # pylint: disable=import-error
 
-db_path_truss = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_5_truss_test.db'
 
 class LindSolverTests(unittest.TestCase):
     """
     Test for 3 dimensional truss.
     """
 
+    @classmethod
+    def setUpClass(cls):
+        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_5_truss_test.db'
+        cls.structural_model = model.Model(cls.db_path, 'test_user', overwrite=True)
+
     def test_build_pyramid(self):
         """Test for 3 dimensional truss."""
-
-        structural_model = model.Model(db_path_truss, 'test_user')
 
         top_chord_list = []
         bottom_chord_list = []
@@ -58,22 +60,23 @@ class LindSolverTests(unittest.TestCase):
         load1 = load.PointLoad(top_chord_list[5].node_a,0,0,-10,0,0,0)
 
         for bar in top_chord_list:
-            structural_model.add_bar(bar)
+            self.structural_model.add_bar(bar)
         
         for bar in bottom_chord_list:
-            structural_model.add_bar(bar)
+            self.structural_model.add_bar(bar)
         
         for bar in bracing_list:
-            structural_model.add_bar(bar)
+            self.structural_model.add_bar(bar)
 
-        structural_model.add_support(support1)
-        structural_model.add_support(support2)
+        self.structural_model.add_support(support1)
+        self.structural_model.add_support(support2)
 
-        structural_model.add_point_load(load1)
+        self.structural_model.add_point_load(load1)
 
-        structural_model.close_connection()
       
-
+    @classmethod
+    def tearDownClass(cls):
+        cls.structural_model.close_connection()
 
 if __name__ == '__main__':
     unittest.main()

@@ -75,7 +75,7 @@ class WriteMixin:
 
         if bar_check_result is not None:
             bar_id = bar_check_result[0]
-            self.events.append(f'warning: bars merged at bar {bar_id}.')
+            self.events.append(f'warning: overlapping bar with {bar_id} not added.')
 
 
         else:
@@ -134,7 +134,7 @@ class WriteMixin:
         if node_check_result is not None:
 
             node_index = node_check_result[0]
-            self.events.append(f'warning: nodes merged at node {node_index}.')
+            #self.events.append(f'warning: nodes merged at node {node_index}.')
 
 
         else:
@@ -183,7 +183,7 @@ class WriteMixin:
         if material_check_result is not None:
 
             material_name = material_check_result[0]
-            self.events.append(f'warnging: material \'{material_name}\' already in database.')
+            #self.events.append(f'warnging: material \'{material_name}\' already in database.')
 
         else:
 
@@ -242,7 +242,7 @@ class WriteMixin:
         if section_check_result is not None:
 
             section_name = section_check_result[0]
-            self.events.append(f'warning: section \'{section_name}\' already in database.')
+            #self.events.append(f'warning: section \'{section_name}\' already in database.')
 
         else:
 
@@ -298,7 +298,7 @@ class WriteMixin:
         if support_check_result is not None:
 
             support_index = support_check_result[0]
-            self.events.append(f'warning: support merged at node \'{node_index}\'.')
+            #self.events.append(f'warning: support merged at node \'{node_index}\'.')
 
         else:
 
@@ -320,7 +320,7 @@ class WriteMixin:
 
             self.cursor.execute(support_query, support_value_string)
 
-            self.events.append(f'added: support id = {node_index}')
+            self.events.append(f'added: support {support} at node {node_index}')
 
         return node_index
 
@@ -351,7 +351,7 @@ class WriteMixin:
         if pointload_check_result is not None:
 
             pointload_index = pointload_check_result[0]
-            self.events.append(f'warning: load merged at node \'{node_index}\'.')
+            #self.events.append(f'warning: load merged at node \'{node_index}\'.')
 
         else:
 
@@ -373,7 +373,7 @@ class WriteMixin:
 
             self.cursor.execute(pointload_query, pointload_value_string)
 
-            self.events.append(f'added: point load id = {node_index}')
+            self.events.append(f'added: point load {pointload} at node {node_index}')
 
         return node_index
 

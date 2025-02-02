@@ -10,6 +10,7 @@ modifying the database model.
 """
 
 import sqlite3
+import os
 
 from . import tables_mixin # pylint: disable=import-error
 from . import add_mixin # pylint: disable=import-error
@@ -31,11 +32,14 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
     -The close_connection method must be run to end work
     on the model and close the connection to the SQLite database.
     """
-    def __init__(self , file_path, user):
+    def __init__(self , file_path, user,/,*, overwrite=False):
         self.database_path = file_path
         self.connection = sqlite3.connect(self.database_path)
         self.cursor = self.connection.cursor()
 
+        if overwrite and os.path.isfile(self.database_path):
+            self.clear_all_tables()
+        
         self.build_tables()
 
         self.user = user
@@ -45,6 +49,8 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
 
         print(f'Connected to {self.database_path}')
     
+
+
 
     def close_connection(self):
         """
