@@ -8,7 +8,12 @@ from ..geometry import vector_3d # pylint: disable=import-error
 from ..geometry import plane # pylint: disable=import-error
 from . import properties # pylint: disable=import-error
 
-class Node:
+class ElementBase:
+
+    def __init__(self, data_string=''):
+        self.data = data_string
+
+class Node(ElementBase):
     """
     Node object that represents a point in 3d space. 
 
@@ -22,13 +27,15 @@ class Node:
     """
 
     def __init__(self,
-                 x : float,
-                 y : float,
-                 z : float):
+                 x,
+                 y,
+                 z,
+                 data = ''):
 
         self.x = x
         self.y = y
         self.z = z
+        super().__init__(data)
 
 
     def to_string(self):
@@ -58,7 +65,7 @@ class Node:
         return np.array([self.x,self.y,self.z])
 
 
-class Bar:
+class Bar(ElementBase):
     """
     Bar object that represents a line between two nodes and contains stiffness
     and end release information for the element.
@@ -91,7 +98,8 @@ class Bar:
                  orientation_vector,
                  release_a = 'XXXXXX',
                  release_b  = 'XXXXXX',
-                 name = None
+                 name = None,
+                 data = ''
                  ):
 
         # pylint: disable=too-many-arguments
@@ -104,10 +112,11 @@ class Bar:
         self.release_a = release_a
         self.release_b = release_b
         self.name = name if name is not None else str(uuid.uuid4())
-        self.length = vector_3d.length(node_a.to_array(),node_b.to_array())        
+        self.length = vector_3d.length(node_a.to_array(),node_b.to_array())
+        super().__init__(data)    
 
 
-class Support:
+class Support(ElementBase):
     """
     Creates a 6 degeree of freedom node support object. Each degree of freedom is represented by a bool.
     True = fixed, False = released.
@@ -126,13 +135,14 @@ class Support:
     """
 
     def __init__(self,
-                 node : Node,
-                 fx : bool,
-                 fy : bool,
-                 fz : bool,
-                 mx : bool,
-                 my : bool,
-                 mz : bool
+                 node,
+                 fx,
+                 fy,
+                 fz,
+                 mx,
+                 my,
+                 mz,
+                 data = ''
                  ):
 
         # pylint: disable=too-many-arguments
@@ -145,6 +155,7 @@ class Support:
         self.mx = mx
         self.my = my
         self.mz = mz
+        super().__init__(data)
     
     def __iter__(self):
 

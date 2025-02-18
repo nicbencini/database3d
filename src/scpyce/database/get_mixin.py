@@ -67,7 +67,8 @@ class ReadMixin:
 
         node_object = element.Node(node_data[1],
                                     node_data[2],
-                                    node_data[3])
+                                    node_data[3],
+                                    node_data[4])
 
 
         return node_object
@@ -103,13 +104,16 @@ class ReadMixin:
         release_a = bar_data[5]
         release_b = bar_data[6]
 
+        bar_data = bar_data[7]
+
         bar_object = element.Bar(node_a,
                                     node_b,
                                     section,
                                     orientation_vector,
                                     release_a,
                                     release_b,
-                                    id)
+                                    id,
+                                    bar_data)
 
         return bar_object
 
@@ -166,7 +170,8 @@ class ReadMixin:
                                   support_data[3],
                                   support_data[4],
                                   support_data[5],
-                                  support_data[6]
+                                  support_data[6],
+                                  support_data[7]
                                   )
 
         return support

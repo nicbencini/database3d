@@ -112,7 +112,8 @@ class TablesMixin:
             section TEXT NOT NULL,
             orientation_vector TEXT NOT NULL,
             release_a TEXT NOT NULL,
-            release_b TEXT NOT NULL
+            release_b TEXT NOT NULL,
+            data TEXT
             );
         """
         self.cursor.execute(bar_table_schema)
@@ -134,7 +135,8 @@ class TablesMixin:
                 _id INTEGER NOT NULL,
                 x FLOAT NOT NULL,
                 y FLOAT NOT NULL,
-                z FLOAT NOT NULL
+                z FLOAT NOT NULL,
+                data TEXT
                 );
             """
         self.cursor.execute(node_table_schema)
@@ -159,7 +161,8 @@ class TablesMixin:
                 fz INTEGER NOT NULL,
                 mx INTEGER NOT NULL,
                 my INTEGER NOT NULL,
-                mz INTEGER NOT NULL
+                mz INTEGER NOT NULL,
+                data TEXT
             );
             """
         self.cursor.execute(support_table_schema)

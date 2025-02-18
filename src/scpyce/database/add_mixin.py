@@ -83,9 +83,9 @@ class WriteMixin:
 
             bar_query = """
             INSERT OR REPLACE INTO element_bar (
-                _id, node_a, node_b, section, orientation_vector, release_a, release_b) 
+                _id, node_a, node_b, section, orientation_vector, release_a, release_b, data) 
                 VALUES 
-                (?,?,?,?,?,?,?)
+                (?,?,?,?,?,?,?,?)
                 """
 
             bar_value_string = (bar.name,
@@ -94,7 +94,8 @@ class WriteMixin:
                                 bar.section.name,
                                 np.array2string(bar.orientation_vector),
                                 bar.release_a,
-                                bar.release_b
+                                bar.release_b,
+                                bar.data
                                 )
 
             self.cursor.execute(bar_query, bar_value_string)
@@ -143,12 +144,12 @@ class WriteMixin:
 
             node_query = """
             INSERT INTO element_node (
-                _id, x, y, z) 
+                _id, x, y, z, data) 
                 VALUES 
-                (?,?,?,?)
+                (?,?,?,?,?)
                 """
 
-            node_value_string = (node_index, node.x, node.y, node.z)
+            node_value_string = (node_index, node.x, node.y, node.z, node.data)
 
             self.cursor.execute(node_query, node_value_string)
 
@@ -304,9 +305,9 @@ class WriteMixin:
 
             support_query = """
             INSERT INTO element_support (
-                node_index, fx, fy, fz, mx, my, mz) 
+                node_index, fx, fy, fz, mx, my, mz, data) 
                 VALUES 
-                (?,?,?,?,?,?,?)
+                (?,?,?,?,?,?,?,?)
                 """
 
             support_value_string = (node_index,
@@ -315,7 +316,8 @@ class WriteMixin:
                                     support.fz,
                                     support.mx,
                                     support.my,
-                                    support.mz
+                                    support.mz,
+                                    support.data
                                     )
 
             self.cursor.execute(support_query, support_value_string)

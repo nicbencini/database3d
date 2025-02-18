@@ -72,5 +72,3 @@ class Plot:
         plt.gca().set_aspect('equal', adjustable='box')
         plt.axis('off')
         plt.show()
-
-
