@@ -49,7 +49,7 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
         self.events = []
         self.runtime = 0
 
-        print(f'connection to {self.file_name} open')
+        #print(f'connection to {self.file_name} open')
         self.events.append(f'connection to {self.file_name} open')
     
     
@@ -64,7 +64,7 @@ class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin,
         None        
         """
         self.events.append(f'connection to {self.file_name} closed')
-        print( f'connection to {self.file_name} closed')
+        #print( f'connection to {self.file_name} closed')
 
         if len(self.events) > 0:
             self.update_logs(self.events)
