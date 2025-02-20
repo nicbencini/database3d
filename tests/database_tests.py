@@ -209,25 +209,11 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[6][1], 'my')
         self.assertEqual(columns[7][1], 'mz')
 
-    def test_add_nodes(self):
 
-        node = element.Node(1,2,3)
-        add_node_result = self.structural_model.add_node(node)
-        self.assertEqual(add_node_result,0)
-
-    def test_add_bar(self):
-
-        node_1 = element.Node(0,0,0)
-        node_2 = element.Node(0,0,1)
-        bar = element.Bar(node_1, node_2, properties.Section.default(), np.array([0,1,0]))
-
-        add_bar_result = self.structural_model.add_bar(bar)
-
-        self.assertIsNotNone(add_bar_result)
-
-    @unittest.skip
-    def test_get_material(self):
+    def test_get_set_material(self):
         """Test for getting material from the database."""
+
+        self.structural_model.add_material(properties.Material.default())
 
         material = self.structural_model.get_material('steel')
 
@@ -242,10 +228,11 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(material.region, 'UK')
         self.assertEqual(material.embodied_carbon, 12090.0)
 
-    @unittest.skip
-    def test_get_section(self):
+    
+    def test_get_set_section(self):
         """Test for getting section from the database."""
 
+        self.structural_model.add_section(properties.Section.default())
 
         section = self.structural_model.get_section('UC305x305x97')
 
@@ -255,22 +242,34 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(section.izz, 0.0002225)
         self.assertEqual(section.iyy, 7.308e-05)
 
-    @unittest.skip
-    def test_get_node(self):
+ 
+    def test_get_set_node(self):
         """Test for getting node from the database."""
 
-        node = self.structural_model.get_node(3)
+        node = element.Node(1,1,0)
+        add_node_result = self.structural_model.add_node(node)
+        
+        node = self.structural_model.get_node(0)
 
+        self.assertIsNotNone(add_node_result)
         self.assertEqual(node.x, 1)
         self.assertEqual(node.y, 1)
         self.assertEqual(node.z, 0)
 
 
-    @unittest.skip
-    def test_get_bar(self):
+    def test_get_set_bar(self):
         """Test for getting bar from the database."""
 
-        test_bar = self.structural_model.get_bar('5b324ddf-4c1e-42a1-b02a-4d9309498fb3')
+        node_1 = element.Node(0,0,0)
+        node_2 = element.Node(0,0,1)
+        bar = element.Bar(node_1, node_2, properties.Section.default(), np.array([0,1,0]), 'XXXXXX', 'XXXXXX', 'Test_Bar')
+
+        add_bar_result = self.structural_model.add_bar(bar)
+
+        get_bar_result = self.structural_model.get_bar('Test_Bar')
+
+        self.assertIsNotNone(add_bar_result)
+        self.assertIsNotNone(get_bar_result)
 
     def tearDown(self):
         self.structural_model.close_connection()
