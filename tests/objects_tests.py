@@ -126,6 +126,15 @@ class ElementTests(unittest.TestCase):
         self.assertSequenceEqual(tm[9].tolist(),control_tm[9])
         self.assertSequenceEqual(tm[10].tolist(),control_tm[10])
         self.assertSequenceEqual(tm[11].tolist(),control_tm[11])
+    
+    def add_data_to_node(self):
+        """Test for adding data to node."""
+
+        data = 'Test: data'
+        node1 = element.Node(0,0,0,data)
+
+        self.assertEqual(node1.data,data)
+        
 
 if __name__ == '__main__':
     unittest.main()

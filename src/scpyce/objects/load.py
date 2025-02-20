@@ -54,22 +54,7 @@ class PointLoad:
         string: String object representing the load object.
         """
 
-        output_string = []
-
-        if abs(self.fx) > 0:
-            output_string.append(f'Fx = {self.fx}kN')
-        if abs(self.fy) > 0:
-            output_string.append(f'Fy = {self.fy}kN')
-        if abs(self.fz) > 0:
-            output_string.append(f'Fz = {self.fz}kN')
-        if abs(self.mx) > 0:
-            output_string.append(f'Mx = {self.mx}kN')
-        if abs(self.my) > 0:
-            output_string.append(f'My = {self.my}kN')
-        if abs(self.mz) > 0:
-            output_string.append(f'Mz = {self.mz}kN')
-
-        return '\n'.join(output_string)
+        return f'[{self.fx},{self.fy},{self.fz},{self.mx},{self.my},{self.mz}]'
 
     def __list__(self):
         """

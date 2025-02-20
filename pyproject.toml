@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scpyce"
-version = "0.2.1"
+version = "0.2.2"
 authors = [
     {name = "Nicolo Bencini", email = "nicbencini@gmail.com"},
 ]
@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "numpy",
     "matplotlib",
+    "scipy",
     "PyQt6"
 ]
 

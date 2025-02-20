@@ -10,6 +10,16 @@ from ..objects import load  # pylint: disable=import-error
 
 class ReadMixin:
 
+    def get_version(self):
+        
+        result = self.cursor.execute("SELECT * FROM model_info").fetchall()
+
+        if len(result) == 0:
+            return '0.0.0'
+
+        return result[-1][0]
+
+
     def get_material(self, material_name):
         """ 
         Gets a material object from the SQLite database tables based on a material name reference.
@@ -21,10 +31,8 @@ class ReadMixin:
         material object: The retreived material. 
         """
 
-        material_cursor = self.connection.cursor()
-        material_data = material_cursor.execute("SELECT * FROM property_material WHERE _id = ?",[material_name]).fetchone()
+        material_data = self.cursor.execute("SELECT * FROM property_material WHERE _id = ?",[material_name]).fetchone()
         material_object = properties.Material(*material_data)
-        material_cursor.close()
 
         return material_object
 
@@ -38,17 +46,14 @@ class ReadMixin:
         Returns:
         section object: The retreived section. 
         """
-
-        section_cursor = self.connection.cursor()
-        section_data = section_cursor.execute("SELECT * FROM property_section WHERE _id = ?",[section_name]).fetchone()
+        section_data = self.cursor.execute("SELECT * FROM property_section WHERE _id = ?",[section_name]).fetchone()
         section_data = list(section_data)
         section_data[1] = self.get_material(section_data[1])
         section_object = properties.Section(*section_data)
-        section_cursor.close()
 
         return section_object
 
-    def get_node(database, node_index):
+    def get_node(self, node_index):
         """ 
         Gets a node object from the SQLite database tables based on a node index reference.
 
@@ -58,15 +63,13 @@ class ReadMixin:
         Returns:
         node object: The retreived node.
         """
-
-        node_cursor = database.connection.cursor()
-        node_data = node_cursor.execute("SELECT * FROM element_node LIMIT 1 OFFSET ?",[int(node_index)]).fetchone()
+        node_data = self.cursor.execute("SELECT * FROM element_node LIMIT 1 OFFSET ?",[int(node_index)]).fetchone()
 
         node_object = element.Node(node_data[1],
                                     node_data[2],
-                                    node_data[3])
+                                    node_data[3],
+                                    node_data[4])
 
-        node_cursor.close()
 
         return node_object
 
@@ -81,8 +84,7 @@ class ReadMixin:
         bar object: The retreived bar.  
         """
 
-        bar_cursor = self.connection.cursor()
-        bar_data = bar_cursor.execute("SELECT * FROM element_bar WHERE _id = ?",[bar_name]).fetchone()
+        bar_data = self.cursor.execute("SELECT * FROM element_bar WHERE _id = ?",[bar_name]).fetchone()
         bar_data = list(bar_data)
 
         id = bar_data[0]
@@ -102,15 +104,16 @@ class ReadMixin:
         release_a = bar_data[5]
         release_b = bar_data[6]
 
+        bar_data = bar_data[7]
+
         bar_object = element.Bar(node_a,
                                     node_b,
                                     section,
                                     orientation_vector,
                                     release_a,
                                     release_b,
-                                    id)
-        
-        bar_cursor.close()
+                                    id,
+                                    bar_data)
 
         return bar_object
 
@@ -125,18 +128,14 @@ class ReadMixin:
         bar object: The retreived bar.  
         """
 
-        bar_cursor = self.connection.cursor()
-        bar_data = bar_cursor.execute("SELECT _id FROM element_bar")
+        bar_data = self.cursor.execute("SELECT _id FROM element_bar")
         bar_id_list = list(bar_data)
-
-        bar_cursor.close()
 
         return [self.get_bar(id[0]) for id in bar_id_list]
     
     def get_node_displacements(self, node_id):
 
-        node_result_cursor = self.connection.cursor()
-        node_result_data = node_result_cursor.execute("SELECT * FROM result_node_displacement WHERE node_index = ?",[node_id]).fetchone()
+        node_result_data = self.cursor.execute("SELECT * FROM result_node_displacement WHERE node_index = ?",[node_id]).fetchone()
         node_result_data = list(node_result_data)
 
         ux = node_result_data[2]
@@ -146,29 +145,23 @@ class ReadMixin:
         ry = node_result_data[6]
         rz = node_result_data[7]
 
-        node_result_cursor.close()
-
         return [ux, uy, uz, rx, ry, rz]
 
 
     def get_bar_displacements(self, bar_name):
 
-        bar_cursor = self.connection.cursor()
-        bar_data = bar_cursor.execute("SELECT * FROM element_bar WHERE _id = ?",[bar_name]).fetchone()
+        bar_data = self.cursor.execute("SELECT * FROM element_bar WHERE _id = ?",[bar_name]).fetchone()
         bar_data = list(bar_data)
 
         node_a_displacements = self.get_node_displacements(bar_data[1])
         node_b_displacements = self.get_node_displacements(bar_data[2])
-
-        bar_cursor.close()
 
         return [node_a_displacements, node_b_displacements]
 
 
     def get_support(self, node_index):
 
-        support_cursor = self.connection.cursor()
-        support_data = (support_cursor.execute("SELECT * FROM element_support WHERE node_index = ?",[node_index])).fetchone()
+        support_data = (self.cursor.execute("SELECT * FROM element_support WHERE node_index = ?",[node_index])).fetchone()
 
         node = self.get_node(node_index)
         support = element.Support(node,
@@ -177,27 +170,22 @@ class ReadMixin:
                                   support_data[3],
                                   support_data[4],
                                   support_data[5],
-                                  support_data[6]
+                                  support_data[6],
+                                  support_data[7]
                                   )
-        
-        support_cursor.close()
 
         return support
 
 
     def get_supports(self):
 
-        support_cursor = self.connection.cursor()
-        support_data = list(support_cursor.execute("SELECT * FROM element_support"))
-
-        support_cursor.close()
+        support_data = list(self.cursor.execute("SELECT * FROM element_support"))
         
         return [self.get_support(data[0]) for data in support_data]
 
     def get_point_load(self, node_index):
 
-        load_cursor = self.connection.cursor()
-        load_data = (load_cursor.execute("SELECT * FROM load_pointload WHERE node_index = ?",[node_index])).fetchone()
+        load_data = (self.cursor.execute("SELECT * FROM load_pointload WHERE node_index = ?",[node_index])).fetchone()
 
         node = self.get_node(node_index)
         point_load = load.PointLoad(node,
@@ -209,17 +197,47 @@ class ReadMixin:
                                     float(load_data[6])
                                     )
         
-        load_cursor.close()
-        
         return point_load
     
     def get_point_loads(self):
 
-        load_cursor = self.connection.cursor()
-        load_data = list(load_cursor.execute("SELECT * FROM load_pointload"))
-
-        load_cursor.close()
+        load_data = list(self.cursor.execute("SELECT * FROM load_pointload"))
 
         return [self.get_point_load(data[0]) for data in load_data]
 
+    def get_node_count(self):
+
+        query = f"SELECT COUNT(*) FROM element_node"
+
+        return self.cursor.execute(query).fetchone()[0]
+    
+    def get_bar_count(self):
+
+        query = f"SELECT COUNT(*) FROM element_bar"
+
+        return self.cursor.execute(query).fetchone()[0]
+
+    def get_material_count(self):
+
+        query = f"SELECT COUNT(*) FROM property_material"
+
+        return self.cursor.execute(query).fetchone()[0]
+
+    def get_section_count(self):
+
+        query = f"SELECT COUNT(*) FROM property_section"
+
+        return self.cursor.execute(query).fetchone()[0]
+
+    def get_support_count(self):
+
+        query = f"SELECT COUNT(*) FROM element_support"
+
+        return self.cursor.execute(query).fetchone()[0]
+    
+    def get_pointload_count(self):
+
+        query = f"SELECT COUNT(*) FROM load_pointload"
+
+        return self.cursor.execute(query).fetchone()[0]
 

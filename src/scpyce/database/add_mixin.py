@@ -5,8 +5,44 @@ Description
 import warnings
 import sqlite3
 import numpy as np
+import datetime
+
 
 class WriteMixin:
+
+    def add_log(self, event_message):
+        """
+        Logs a model event.
+        
+        Parameters:
+        None
+
+        Returns:
+        None
+        """     
+
+        cur = self.connection.cursor()
+
+        version_query = """
+        INSERT INTO model_log (
+            version,
+            user, 
+            date,
+            event) 
+            VALUES 
+            (?,?,?,?)
+            """
+        version_value_string = (self.version,
+                                self.user,
+                                datetime.datetime.now(),
+                                event_message
+                                )
+
+        cur.execute(version_query, version_value_string)
+
+        self.connection.commit()
+
+        cur.close()
 
     def add_bar(self, bar, /, *, overwrite=False):
         """
@@ -25,8 +61,6 @@ class WriteMixin:
         """
         bar_id = None
 
-        cur = self.connection.cursor()
-
         node_a_index = self.add_node(bar.node_a)
         node_b_index = self.add_node(bar.node_b)
 
@@ -37,11 +71,11 @@ class WriteMixin:
             AND (node_b = ?)
             """
         
-        bar_check_result = cur.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
+        bar_check_result = self.cursor.execute(bar_check_query,(node_a_index, node_b_index)).fetchone()
 
         if bar_check_result is not None:
             bar_id = bar_check_result[0]
-            warnings.warn(f'Bar not added because of overlap with bar {bar_id}.')
+            self.events.append(f'warning: overlapping bar with {bar_id} not added.')
 
 
         else:
@@ -49,9 +83,9 @@ class WriteMixin:
 
             bar_query = """
             INSERT OR REPLACE INTO element_bar (
-                _id, node_a, node_b, section, orientation_vector, release_a, release_b) 
+                _id, node_a, node_b, section, orientation_vector, release_a, release_b, data) 
                 VALUES 
-                (?,?,?,?,?,?,?)
+                (?,?,?,?,?,?,?,?)
                 """
 
             bar_value_string = (bar.name,
@@ -60,22 +94,20 @@ class WriteMixin:
                                 bar.section.name,
                                 np.array2string(bar.orientation_vector),
                                 bar.release_a,
-                                bar.release_b
+                                bar.release_b,
+                                bar.data
                                 )
 
-            cur.execute(bar_query, bar_value_string)
+            self.cursor.execute(bar_query, bar_value_string)
 
             bar_id = bar.name
 
+            self.events.append(f'added: bar id = {bar_id}')
 
-            
-
-        self.connection.commit()
-
-        cur.close()
 
         return bar_id
 
+   
     def add_node(self, node):
         """
         Adds a node to the database. Returns the id of that node. 
@@ -90,8 +122,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         node_check_query = """
             SELECT _id
             FROM element_node
@@ -100,34 +130,34 @@ class WriteMixin:
             AND (z = ?)
             """
 
-        node_check_result = cur.execute(node_check_query,(node.x, node.y, node.z)).fetchone()
+        node_check_result = self.cursor.execute(node_check_query,(node.x, node.y, node.z)).fetchone()
 
         if node_check_result is not None:
 
             node_index = node_check_result[0]
+            #self.events.append(f'warning: nodes merged at node {node_index}.')
 
 
         else:
 
-            node_index = cur.execute("SELECT COUNT(*) FROM element_node").fetchone()[0]
+            node_index = self.cursor.execute("SELECT COUNT(*) FROM element_node").fetchone()[0]
 
             node_query = """
             INSERT INTO element_node (
-                _id, x, y, z) 
+                _id, x, y, z, data) 
                 VALUES 
-                (?,?,?,?)
+                (?,?,?,?,?)
                 """
 
-            node_value_string = (node_index, node.x, node.y, node.z)
+            node_value_string = (node_index, node.x, node.y, node.z, node.data)
 
-            cur.execute(node_query, node_value_string)
+            self.cursor.execute(node_query, node_value_string)
 
-
-        self.connection.commit()
-
-        cur.close()
+            self.events.append(f'added: node id = {node_index}')
 
         return node_index
+    
+    
 
     def add_material(self, material):
         """
@@ -143,19 +173,18 @@ class WriteMixin:
 
         material_name = None
 
-        cur = self.connection.cursor()
-
         material_check_query = """
             SELECT _id 
             FROM property_material
             WHERE (_id = ?)
             """
 
-        material_check_result = cur.execute(material_check_query,[material.name]).fetchone()
+        material_check_result = self.cursor.execute(material_check_query,[material.name]).fetchone()
 
         if material_check_result is not None:
 
             material_name = material_check_result[0]
+            #self.events.append(f'warnging: material \'{material_name}\' already in database.')
 
         else:
 
@@ -180,14 +209,12 @@ class WriteMixin:
                                     material.embodied_carbon
                                     )
 
-            cur.execute(material_query, material_value_string)
+            self.cursor.execute(material_query, material_value_string)
 
             material_name = material.name
 
+            self.events.append(f'added: material id = \'{material_name}\'')
 
-        self.connection.commit()
-
-        cur.close()
 
         return material_name
 
@@ -205,19 +232,18 @@ class WriteMixin:
 
         section_name = None
 
-        cur = self.connection.cursor()
-
         section_check_query = """
             SELECT _id 
             FROM property_section
             WHERE (_id = ?)
             """
 
-        section_check_result = cur.execute(section_check_query, [section.name]).fetchone()
+        section_check_result = self.cursor.execute(section_check_query, [section.name]).fetchone()
 
         if section_check_result is not None:
 
             section_name = section_check_result[0]
+            #self.events.append(f'warning: section \'{section_name}\' already in database.')
 
         else:
 
@@ -237,13 +263,12 @@ class WriteMixin:
                                     section.iyy
                                     )
 
-            cur.execute(section_query, section_value_string)
+            self.cursor.execute(section_query, section_value_string)
 
             section_name = section.name
 
-        self.connection.commit()
-
-        cur.close()
+            self.events.append(f'added: section id = \'{section_name}\'')
+        
 
         return section_name
 
@@ -261,8 +286,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         support_check_query = """
             SELECT node_index
             FROM element_support
@@ -271,19 +294,20 @@ class WriteMixin:
 
         node_index = self.add_node(support.node)
 
-        support_check_result = cur.execute(support_check_query, [node_index]).fetchone()
+        support_check_result = self.cursor.execute(support_check_query, [node_index]).fetchone()
 
         if support_check_result is not None:
 
             support_index = support_check_result[0]
+            #self.events.append(f'warning: support merged at node \'{node_index}\'.')
 
         else:
 
             support_query = """
             INSERT INTO element_support (
-                node_index, fx, fy, fz, mx, my, mz) 
+                node_index, fx, fy, fz, mx, my, mz, data) 
                 VALUES 
-                (?,?,?,?,?,?,?)
+                (?,?,?,?,?,?,?,?)
                 """
 
             support_value_string = (node_index,
@@ -292,15 +316,13 @@ class WriteMixin:
                                     support.fz,
                                     support.mx,
                                     support.my,
-                                    support.mz
+                                    support.mz,
+                                    support.data
                                     )
 
-            cur.execute(support_query, support_value_string)
+            self.cursor.execute(support_query, support_value_string)
 
-
-        self.connection.commit()
-
-        cur.close()
+            self.events.append(f'added: support {support} at node {node_index}')
 
         return node_index
 
@@ -318,8 +340,6 @@ class WriteMixin:
 
         node_index = None
 
-        cur = self.connection.cursor()
-
         pointload_check_query = """
             SELECT node_index
             FROM load_pointload
@@ -328,11 +348,12 @@ class WriteMixin:
 
         node_index = self.add_node(pointload.node)
 
-        pointload_check_result = cur.execute(pointload_check_query, [node_index]).fetchone()
+        pointload_check_result = self.cursor.execute(pointload_check_query, [node_index]).fetchone()
 
         if pointload_check_result is not None:
 
             pointload_index = pointload_check_result[0]
+            #self.events.append(f'warning: load merged at node \'{node_index}\'.')
 
         else:
 
@@ -352,11 +373,10 @@ class WriteMixin:
                                     pointload.mz
                                     )
 
-            cur.execute(pointload_query, pointload_value_string)
+            self.cursor.execute(pointload_query, pointload_value_string)
 
-
-        self.connection.commit()
-
-        cur.close()
+            self.events.append(f'added: point load {pointload} at node {node_index}')
 
         return node_index
+
+

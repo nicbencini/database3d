@@ -4,6 +4,30 @@ This module contains the functions for the geometrical manipulation of vectors.
 import math
 import numpy as np
 
+class Vector(np.ndarray):
+    def __new__(cls, input_array):
+        # Create a new instance of the subclass (Vector), using np.asarray to handle input array
+        obj = np.asarray(input_array).view(cls)
+        return obj
+
+    # Custom method to get the magnitude (length) of the vector
+    def magnitude(self):
+        return np.linalg.norm(self)
+
+    # Custom method to normalize the vector
+    def normalize(self):
+        mag = self.magnitude()
+        if mag == 0:
+            raise ValueError("Cannot normalize a zero vector")
+        return self / mag
+
+    # Example: Adding a dot product method
+    def dot_product(self, other):
+        if isinstance(other, Vector):
+            return np.dot(self, other)
+        else:
+            raise ValueError("Dot product requires another Vector instance.")
+
 def magnitude(vector):
     """
     Returns the magnitude of a vector.

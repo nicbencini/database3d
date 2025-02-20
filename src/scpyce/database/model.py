@@ -10,12 +10,16 @@ modifying the database model.
 """
 
 import sqlite3
+import os
+import re
 
 from . import tables_mixin # pylint: disable=import-error
-from . import write_mixin # pylint: disable=import-error
-from . import read_mixin # pylint: disable=import-error
+from . import add_mixin # pylint: disable=import-error
+from . import get_mixin # pylint: disable=import-error
+from . import update_mixin # pylint: disable=import-error
+from . import delete_mixin # pylint: disable=import-error
 
-class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMixin):
+class Model(tables_mixin.TablesMixin, add_mixin.WriteMixin, get_mixin.ReadMixin, update_mixin.UpdateMixin, delete_mixin.DeleteMixin):
     """
     Used for creating the tables for the database model and 
     reading and writing into the databse. 
@@ -29,13 +33,26 @@ class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMix
     -The close_connection method must be run to end work
     on the model and close the connection to the SQLite database.
     """
-    def __init__(self , file_path):
+    def __init__(self , file_path, user,/,*, overwrite=False):
         self.database_path = file_path
+        self.file_name = re.findall(r'[^/]*\b$',self.database_path)[0]
         self.connection = sqlite3.connect(self.database_path)
+        self.cursor = self.connection.cursor()
 
+        if overwrite and os.path.isfile(self.database_path):
+            self.clear_all_tables()
+        
+        self.build_tables()
 
-        print(f'Connected to {self.database_path}')
+        self.user = user
+        self.version = self.update_version('0.0.1')
+        self.events = []
+        self.runtime = 0
 
+        #print(f'connection to {self.file_name} open')
+        self.events.append(f'connection to {self.file_name} open')
+    
+    
     def close_connection(self):
         """
         Closes the connection to the model database.
@@ -46,6 +63,18 @@ class Model(tables_mixin.TablesMixin, write_mixin.WriteMixin, read_mixin.ReadMix
         Returns:
         None        
         """
+        self.events.append(f'connection to {self.file_name} closed')
+        #print( f'connection to {self.file_name} closed')
 
+        if len(self.events) > 0:
+            self.update_logs(self.events)
+            self.update_model_info()
+
+        
+        self.cursor.close()
+        
+        self.connection.commit()
         self.connection.close()
-        print( f'Connection to {self.database_path} closed')
+
+    
+    
