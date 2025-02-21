@@ -12,6 +12,6 @@ from scpyce.database import model
 from scpyce.objects import element
 from scpyce.objects import properties
 from scpyce.objects import load
-from scpyce.geometry import vector_3d
+from scpyce.geometry import vector3d
 from scpyce.geometry import plane
 from scpyce.plot import plot

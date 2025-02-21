@@ -3,7 +3,7 @@ This module contains the functions for the geometrical manipulation of planes.
 """
 
 import numpy as np
-from . import vector_3d # pylint: disable=import-error
+from . import vector3d # pylint: disable=import-error
 
 def plane_from_3pt(point_1, point_2, oreintation_vector, x_axis_oriented = True):
     """
@@ -32,18 +32,18 @@ def plane_from_3pt(point_1, point_2, oreintation_vector, x_axis_oriented = True)
     """
 
     origin = point_1
-    x_vector = vector_3d.unit(point_2 - point_1)
+    x_vector = vector3d.unit(point_2 - point_1)
     
 
-    if vector_3d.is_parallel(x_vector , oreintation_vector):
-        if not vector_3d.is_parallel(x_vector , vector_3d.unit_z()):
-            oreintation_vector = vector_3d.unit_z()
+    if vector3d.is_parallel(x_vector , oreintation_vector):
+        if not vector3d.is_parallel(x_vector , vector3d.unit_z()):
+            oreintation_vector = vector3d.unit_z()
         else:
-            oreintation_vector = -vector_3d.unit_x()
+            oreintation_vector = -vector3d.unit_x()
 
 
-    y_vector = vector_3d.unit(vector_3d.gram_schmit(x_vector, oreintation_vector))
-    z_vector = vector_3d.unit(np.cross(x_vector, y_vector))
+    y_vector = vector3d.unit(vector3d.gram_schmit(x_vector, oreintation_vector))
+    z_vector = vector3d.unit(np.cross(x_vector, y_vector))
 
 
     if not x_axis_oriented:

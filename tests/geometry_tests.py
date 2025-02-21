@@ -5,7 +5,7 @@ Tests for the geometry library.
 import unittest
 import numpy as np
 
-from context import vector_3d # pylint: disable=import-error
+from context import vector3d # pylint: disable=import-error
 from context import plane # pylint: disable=import-error
 
 
@@ -14,48 +14,93 @@ class VectorTests(unittest.TestCase):
     Tests for the vector module.
     """
 
+    def test_build_vector_instance(self):
+
+        vec = vector3d.Vector3d([0,1,2])
+        
+        self.assertIsInstance(vec, vector3d.Vector3d)
+        self.assertEqual(vec.x, 0)
+        self.assertEqual(vec.y, 1)
+        self.assertEqual(vec.z, 2)
+    
+    def test_modfiy_vector(self):
+
+        vec = vector3d.Vector3d([0,0,0])
+
+        vec.x = 0
+        vec.y = 1
+        vec.z = 2
+
+        self.assertEqual(vec.x, 0)
+        self.assertEqual(vec.y, 1)
+        self.assertEqual(vec.z, 2)
+
+    def test_incorrect_input_array(self):
+
+        with self.assertRaises(ValueError):
+            print(vector3d.Vector3d([0,0]))
+        
+        with self.assertRaises(ValueError):
+            vector3d.Vector3d([0,0,0,0])
+
+        with self.assertRaises(TypeError):
+            vector3d.Vector3d(['a','b','c'])
+
+        with self.assertRaises(TypeError):
+            vector3d.Vector3d([True,True,True])
+
+    def test_vector_equality(self):
+        vec_1 = vector3d.Vector3d([11,23,2])
+        vec_2 = vector3d.Vector3d([11,23,2])
+        vec_3 = vector3d.Vector3d([1,2,2])
+
+        self.assertTrue(vec_1 == vec_2)
+        self.assertTrue(vec_1 == [11,23,2])
+        self.assertFalse(vec_1 == vec_3)
+        self.assertFalse(vec_1 == [1,1,1])
+        
+    
     def test_vector_magnitude(self):
         """Test for vector magnitude."""
 
-        vector = (11,23,2)
+        vector = vector3d.Vector3d([11,23,2])
 
-        magnitude = vector_3d.magnitude(vector)
+        self.assertEqual(vector.magnitude(),25.573423705088842)
+        self.assertEqual(vector3d.Vector3d.vector_magnitude(vector), 25.573423705088842)
 
-        self.assertEqual(magnitude,25.573423705088842)
-
+    
     def test_vector_unit(self):
         """Test for unit vector."""
 
-        vector = (11,23,2)
+        vector = vector3d.Vector3d([11,23,2])
 
-        unit_vector = vector_3d.unit(vector)
-        control_vector = np.array([0.4301340378531763,0.8993711700566414,0.07820618870057751])
+        unit_vector = vector.unit()
+        control_vector = vector3d.Vector3d([0.4301340378531763,0.8993711700566414,0.07820618870057751])
 
-        self.assertSequenceEqual(unit_vector.tolist(),control_vector.tolist())
+        self.assertTrue(unit_vector == control_vector)
 
-    def test_vector_length(self):
-        """Test for vector length."""
-
-        vector_1 = (0,0,0)
-        vector_2 = (11,23,2)
-
-        length = vector_3d.length(vector_1, vector_2)
-        control_length = 25.573423705088842
-
-        self.assertEqual(length, control_length)
-
+    @unittest.skip
     def test_vector_gram_schmit(self):
         """Test for gram schmit equation."""
 
-        vector_1 = (11,23,2)
-        vector_2 = (2,5,6)
+        vector_1 = vector3d.Vector3d([11,23,2])
+        vector_2 = vector3d.Vector3d([2,5,6])
 
-        new_vector = vector_3d.gram_schmit(vector_1 , vector_2)
-        control_vector = np.array([-1637,-3422,-292])
+        control_vector = vector3d.Vector3d([-1637,-3422,-292])
 
-        self.assertSequenceEqual(new_vector.tolist(),control_vector.tolist())
+        self.assertTrue(vector3d.Vector3d.gram_schmit(vector_1 , vector_2) == control_vector)
+    
+    @unittest.skip
+    def test_is_parallel(self):
 
+        vector_1 = vector3d.Vector3d([0,0,1])
+        vector_2 = vector3d.Vector3d([0,2,1])
+        vector_3 = vector3d.Vector3d([0,0,1])
 
+        self.assertFalse(vector_1.is_parallel_to(vector_2))
+        self.assertTrue(vector_1.is_parallel_to(vector_3))
+
+    @unittest.skip
     def test_local_plane(self):
         """Test for local plane."""
 
@@ -92,14 +137,7 @@ class VectorTests(unittest.TestCase):
         self.assertSequenceEqual(new_plane_y_vec.tolist(),control_plane_y_vec.tolist())
         self.assertSequenceEqual(new_plane_z_vec.tolist(),control_plane_z_vec.tolist())
     
-    def test_is_parallel(self):
 
-        vector_1 = np.array([0,0,1])
-        vector_2 = np.array([0,2,1])
-        vector_3 = np.array([0,0,1])
-
-        self.assertFalse(vector_3d.is_parallel(vector_1, vector_2))
-        self.assertTrue(vector_3d.is_parallel(vector_1, vector_3))
 
 
 

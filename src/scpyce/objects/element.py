@@ -4,7 +4,7 @@ Contains the object classes for element objects of the structural model.
 import uuid
 import numpy as np
 
-from ..geometry import vector_3d # pylint: disable=import-error
+from ..geometry import vector3d # pylint: disable=import-error
 from ..geometry import plane # pylint: disable=import-error
 from . import properties # pylint: disable=import-error
 
@@ -112,7 +112,7 @@ class Bar(ElementBase):
         self.release_a = release_a
         self.release_b = release_b
         self.name = name if name is not None else str(uuid.uuid4())
-        self.length = vector_3d.length(node_a.to_array(),node_b.to_array())
+        self.length = vector3d.length(node_a.to_array(),node_b.to_array())
         super().__init__(data)    
 
 
