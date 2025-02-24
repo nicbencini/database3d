@@ -20,30 +20,37 @@ class Vector3d(np.ndarray):
         for value in input_array:
             if not (isinstance(value, (int, float, complex)) and not isinstance(value, bool)):
                 raise TypeError(['Input array must only contian numbers'])
+        
+        self._x = input_array[0]
+        self._y = input_array[1]
+        self._z = input_array[2]
     
     @property
     def x(self):
-        return self[0]
+        return self._x
     
     @property
     def y(self):
-        return self[1]
+        return self._y
     
     @property
     def z(self):
-        return self[2]
+        return self._z
     
     @x.setter
     def x(self, new_value):
         self[0] = new_value
+        self._x = new_value
     
     @y.setter
     def y(self, new_value):
         self[1] = new_value
+        self._y = new_value
     
     @z.setter
     def z(self, new_value):
         self[2] = new_value
+        self._z = new_value
 
     def magnitude(self):
         return np.linalg.norm(self)

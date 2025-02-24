@@ -11,7 +11,9 @@ from . import properties # pylint: disable=import-error
 class ElementBase:
 
     def __init__(self, data_string=''):
+        self.type = 'element'
         self.data = data_string
+
 
 class Node(ElementBase):
     """
@@ -32,6 +34,7 @@ class Node(ElementBase):
                  z,
                  data = ''):
 
+        self._id = f'{x}_{y}_{z}'
         self.x = x
         self.y = y
         self.z = z
@@ -112,7 +115,7 @@ class Bar(ElementBase):
         self.release_a = release_a
         self.release_b = release_b
         self.name = name if name is not None else str(uuid.uuid4())
-        self.length = vector3d.length(node_a.to_array(),node_b.to_array())
+        self.length = 0 #TODO to be implemented
         super().__init__(data)    
 
 

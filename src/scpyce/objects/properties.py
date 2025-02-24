@@ -42,7 +42,7 @@ class Material:
         # pylint: disable=too-many-arguments
         # Eleven is reasonable in this case.
 
-        self.name = name
+        self._id = name
         self.youngs_modulus = youngs_modulus
         self.poissons_ratio = poissons_ratio
         self.shear_modulus = shear_modulus
@@ -143,7 +143,7 @@ class Section:
                   iyy : float, # m^4
                   ):
 
-        self.name = name
+        self._id = name
         self.material = material
         self.area = area
         self.izz = izz

@@ -2,6 +2,7 @@
 Containse the functions for building the tables in the SQLite database model.
 """
 import sqlite3
+from collections.abc import Iterable
 
 class TablesMixin:
 
@@ -9,14 +10,8 @@ class TablesMixin:
         """
         Creates the following tables for the SQLite database model: 
 
-        - nodes
-        - bars
-        - sections
-        - materials
-        - supports
-        - loads
-        - node reactions
-        - node displacements
+        - model_info
+        - model_log
 
         Parameters:
         None
@@ -28,20 +23,7 @@ class TablesMixin:
         #Build object tables
         self.build_info_table()
         self.build_log_table()
-        self.build_bar_table()
-        self.build_node_table()
-        self.build_support_table()
-
-        #Build property tables
-        self.build_material_table()
-        self.build_section_table()
-
-        #Build load tables
-        self.build_point_load_table()
-
-        #Build results tables
-        self.build_node_displacements_table()
-        self.build_node_reactions_table()
+       
     
     def clear_all_tables(self):
 
@@ -92,207 +74,51 @@ class TablesMixin:
         """
         self.cursor.execute(table_schema)
 
-    def build_bar_table(self):
-        """
-        Builds the bar table for the model database.
 
-        Parameters:
-        connection (SQL connection): Connection to the model database.
+    def build_table(self, model_object):
 
-        Returns:
-        None
-        """
+        table_name = model_object.__class__.__name__
+        attribute_string = 'value TEXT'
+        table_type = 'object' #TODO add to table name
 
-        # create the database table if it doesn't exist
-        bar_table_schema = """
-        CREATE TABLE IF NOT EXISTS element_bar (
-            _id TEXT PRIMARY KEY,
-            node_a INTEGER NOT NULL,
-            node_b INTEGER NOT NULL,
-            section TEXT NOT NULL,
-            orientation_vector TEXT NOT NULL,
-            release_a TEXT NOT NULL,
-            release_b TEXT NOT NULL,
-            data TEXT
-            );
-        """
-        self.cursor.execute(bar_table_schema)
+        if hasattr(model_object, 'type'):
+            table_type = str(model_object.type)
 
-    def build_node_table(self):
-        """
-        Builds the node table for the model database.
+        if hasattr(model_object, '__dict__') and len(model_object.__dict__) > 0:
+            attribute_dictionary = model_object.__dict__
+            attribute_string_list = []
 
-        Parameters:
-        connection (SQL connection): Connection to the model database.
+            for attribute in attribute_dictionary.items():
 
-        Returns:
-        None
-        """
+                attribute_name = attribute[0].lower()
+                attribute_value = attribute[1]
+                attribute_value_type = 'NULL'
+                primary_key = ''
 
-        # create the database table if it doesn't exist
-        node_table_schema = """
-            CREATE TABLE IF NOT EXISTS element_node (
-                _id INTEGER NOT NULL,
-                x FLOAT NOT NULL,
-                y FLOAT NOT NULL,
-                z FLOAT NOT NULL,
-                data TEXT
-                );
-            """
-        self.cursor.execute(node_table_schema)
-
-    def build_support_table(self):
-        """
-        Builds the support table for the model database.
-
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        support_table_schema = """
-            CREATE TABLE IF NOT EXISTS element_support (
-                node_index INTEGER NOT NULL PRIMARY KEY,
-                fx INTEGER NOT NULL,
-                fy INTEGER NOT NULL,
-                fz INTEGER NOT NULL,
-                mx INTEGER NOT NULL,
-                my INTEGER NOT NULL,
-                mz INTEGER NOT NULL,
-                data TEXT
-            );
-            """
-        self.cursor.execute(support_table_schema)
+                if isinstance(attribute_value, int):
+                    attribute_value_type = 'INTEGER'
+                elif isinstance(attribute_value, float):
+                    attribute_value_type = 'FLOAT'
+                elif isinstance(attribute_value, str):
+                    attribute_value_type = 'TEXT'
+                elif isinstance(attribute_value, bool):
+                    attribute_value_type = 'BOOL'
+                elif isinstance(attribute_value, Iterable):
+                    attribute_value_type = 'TEXT'
+                else:
+                    self.build_table(attribute_value)
+                    attribute_value_type = 'INTEGER'
+                
+                #TODO add table or lists
+                
+                if attribute_name == '_id':
+                    primary_key = ' NOT NULL PRIMARY KEY'
 
 
-    def build_point_load_table(self):
-        """
-        Builds the point load table for the model database.
+                attribute_string_list.append(f'{attribute_name} {attribute_value_type}{primary_key}')
+            
+            attribute_string = ','.join(attribute_string_list)
+        
+        table_schema = f'CREATE TABLE IF NOT EXISTS {table_name.lower()} (' + attribute_string + ');'
 
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        point_load_table_schema = """
-            CREATE TABLE IF NOT EXISTS load_pointload (
-                node_index INTEGER NOT NULL PRIMARY KEY,
-                fx FLOAT NOT NULL,
-                fy FLOAT NOT NULL,
-                fz FLOAT NOT NULL,
-                mx FLOAT NOT NULL,
-                my FLOAT NOT NULL,
-                mz FLOAT NOT NULL
-            );
-            """
-        self.cursor.execute(point_load_table_schema)
-
-
-    def build_section_table(self):
-        """
-        Builds the section table for the model database.
-
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        section_table_schema = """
-            CREATE TABLE IF NOT EXISTS property_section (
-                _id TEXT PRIMARY KEY,
-                material TEXT NOT NULL,
-                area FLOAT NOT NULL,
-                izz FLOAT NOT NULL,
-                iyy FLOAT NOT NULL
-            );
-            """
-        self.cursor.execute(section_table_schema)
-
-    def build_material_table(self):
-        """
-        Builds the material table for the model database.
-
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        material_table_schema = """
-            CREATE TABLE IF NOT EXISTS property_material (
-                _id TEXT PRIMARY KEY,
-                youngs_modulus FLOAT NOT NULL,
-                poissons_ratio FLOAT NOT NULL,
-                shear_modulus FLOAT NOT NULL,
-                coeff_thermal_expansion FLOAT NOT NULL,
-                damping_ratio FLOAT NOT NULL,
-                density FLOAT NOT NULL,
-                type TEXT,
-                region TEXT,
-                embodied_carbon FLOAT
-            );
-            """
-        self.cursor.execute(material_table_schema)
-
-    def build_node_displacements_table(self):
-        """
-        Builds the node displacements table for the model database.
-
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        results_node_displacements = """
-            CREATE TABLE IF NOT EXISTS result_node_displacement (
-            node_index int NOT NULL,
-            load_case string NOT NULL,
-            ux float NOT NULL,
-            uy float NOT NULL,
-            uz float NOT NULL,
-            rx float NOT NULL,
-            ry float NOT NULL,
-            rz float NOT NULL
-            ); """
-
-        self.cursor.execute(results_node_displacements)
-
-    def build_node_reactions_table(self):
-        """
-        Builds the node displacements table for the model database.
-
-        Parameters:
-        connection (SQL connection): Connection to the model database.
-
-        Returns:
-        None
-        """
-
-        # create the database table if it doesn't exist
-        results_node_reactions = """ CREATE TABLE IF NOT EXISTS
-            result_node_reactions (
-            node_index int NOT NULL,
-            load_case string NOT NULL,
-            fx float NOT NULL,
-            fy float NOT NULL,
-            fz float NOT NULL,
-            mx float NOT NULL,
-            my float NOT NULL,
-            mz float NOT NULL
-            ); """
-
-        self.cursor.execute(results_node_reactions)
+        self.cursor.execute(table_schema)
