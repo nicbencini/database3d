@@ -1,10 +1,10 @@
 Metadata-Version: 2.2
-Name: scpyce
-Version: 0.2.1
+Name: database3d
+Version: 0.1.0
 Summary: SQL based library for building and visualising finite element models.
 Author-email: Nicolo Bencini <nicbencini@gmail.com>
-Project-URL: Homepage, https://github.com/nicbencini/scpyce
-Project-URL: Issues, https://github.com/nicbencini/scpyce/issues
+Project-URL: Homepage, https://github.com/nicbencini/database3d
+Project-URL: Issues, https://github.com/nicbencini/database3d/issues
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -13,6 +13,7 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: numpy
 Requires-Dist: matplotlib
+Requires-Dist: scipy
 Requires-Dist: PyQt6
 
 # About the project

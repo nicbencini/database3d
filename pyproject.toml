@@ -3,8 +3,8 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "scpyce"
-version = "0.2.2"
+name = "database3d"
+version = "0.1.0"
 authors = [
     {name = "Nicolo Bencini", email = "nicbencini@gmail.com"},
 ]
@@ -25,5 +25,5 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/nicbencini/scpyce"
-Issues = "https://github.com/nicbencini/scpyce/issues"
+Homepage = "https://github.com/nicbencini/database3d"
+Issues = "https://github.com/nicbencini/database3d/issues"
