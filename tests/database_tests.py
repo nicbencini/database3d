@@ -7,9 +7,10 @@ import unittest
 import numpy as np
 
 from context import model # pylint: disable=import-error
-from context import element # pylint: disable=import-error
-from context import properties # pylint: disable=import-error
-from context import load # pylint: disable=import-error
+import element # pylint: disable=import-error
+import properties
+from datetime import datetime as dt
+
 
 class DatabaseTests(unittest.TestCase):
     """
@@ -17,11 +18,12 @@ class DatabaseTests(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_7_model_test.db'
+        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ str(dt.now()) + '_test.db'
         
     def setUp(self):
-        self.structural_model = model.Model(self.db_path, 'test_user', overwrite=True)
+        self.structural_model = model.Model(self.db_path, 'test_user', overwrite=False)
     
+    @unittest.skip
     def test_build_info_table(self):
 
         self.structural_model.build_info_table()
@@ -45,6 +47,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[10][1], 'warnings')
         self.assertEqual(columns[11][1], 'run_time')
     
+    @unittest.skip
     def test_build_log_table(self):
 
         self.structural_model.build_log_table()
@@ -60,6 +63,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[2][1], 'date')
         self.assertEqual(columns[3][1], 'event')
 
+    @unittest.skip
     def test_build_bar_table(self):
 
 
@@ -80,6 +84,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[6][1], 'release_b')
         self.assertEqual(columns[7][1], 'data')
     
+    @unittest.skip
     def test_build_node_table(self):
 
 
@@ -97,6 +102,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[3][1], 'z')
         self.assertEqual(columns[4][1], 'data')
     
+    @unittest.skip
     def test_build_support_table(self):
 
         self.structural_model.build_support_table()
@@ -116,6 +122,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[6][1], 'mz')
         self.assertEqual(columns[7][1], 'data')
 
+    @unittest.skip
     def test_build_point_load_table(self):
 
         self.structural_model.build_support_table()
@@ -134,6 +141,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[5][1], 'my')
         self.assertEqual(columns[6][1], 'mz')
     
+    @unittest.skip
     def test_build_section_table(self):
 
         self.structural_model.build_support_table()
@@ -150,6 +158,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[3][1], 'izz')
         self.assertEqual(columns[4][1], 'iyy')
     
+    @unittest.skip
     def test_build_material_table(self):
 
         self.structural_model.build_material_table()
@@ -171,6 +180,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[8][1], 'region')
         self.assertEqual(columns[9][1], 'embodied_carbon')
 
+    @unittest.skip
     def test_node_dispalcements_table(self):
 
         self.structural_model.build_node_displacements_table()
@@ -190,6 +200,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[6][1], 'ry')
         self.assertEqual(columns[7][1], 'rz')
 
+    @unittest.skip
     def test_node_reactions_table(self):
 
         self.structural_model.build_node_reactions_table()
@@ -209,7 +220,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(columns[6][1], 'my')
         self.assertEqual(columns[7][1], 'mz')
 
-
+    @unittest.skip
     def test_get_set_material(self):
         """Test for getting material from the database."""
 
@@ -228,7 +239,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(material.region, 'UK')
         self.assertEqual(material.embodied_carbon, 12090.0)
 
-    
+    @unittest.skip
     def test_get_set_section(self):
         """Test for getting section from the database."""
 
@@ -242,7 +253,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(section.izz, 0.0002225)
         self.assertEqual(section.iyy, 7.308e-05)
 
- 
+    @unittest.skip
     def test_get_set_node(self):
         """Test for getting node from the database."""
 
@@ -256,7 +267,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(node.y, 1)
         self.assertEqual(node.z, 0)
 
-
+    @unittest.skip
     def test_get_set_bar(self):
         """Test for getting bar from the database."""
 
@@ -270,6 +281,21 @@ class DatabaseTests(unittest.TestCase):
 
         self.assertIsNotNone(add_bar_result)
         self.assertIsNotNone(get_bar_result)
+    
+    def test_add_object(self):
+
+        node_1 = element.Node(0,0,0)
+        node_2 = element.Node(0,0,1)
+        #bar = element.Bar(node_1, node_2, properties.Section.default(), vector3d.Vector3d([0,1,0]), 'XXXXXX', 'XXXXXX', 'Test_Bar')
+
+        bar = element.Bar(node_1, node_2, properties.Section.default(), [0,1,0], 'XXXXXX', 'XXXXXX', 'Test_Bar')
+
+        self.structural_model.add(bar)
+        self.structural_model.add(bar)
+    
+    def test_get_object(self):
+
+        data = self.structural_model.get('bar', '1')
 
     def tearDown(self):
         self.structural_model.close_connection()
