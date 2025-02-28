@@ -7,10 +7,10 @@ import unittest
 import numpy as np
 
 from context import model # pylint: disable=import-error
-from context import element # pylint: disable=import-error
-from context import properties # pylint: disable=import-error
-from context import load # pylint: disable=import-error
-from context import vector3d
+import element # pylint: disable=import-error
+import properties
+from datetime import datetime as dt
+
 
 class DatabaseTests(unittest.TestCase):
     """
@@ -18,7 +18,7 @@ class DatabaseTests(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ 'database_7_model_test.db'
+        cls.db_path = os.path.dirname(os.path.realpath(__file__)) +'/test_files/'+ str(dt.now()) + '_test.db'
         
     def setUp(self):
         self.structural_model = model.Model(self.db_path, 'test_user', overwrite=False)
@@ -288,10 +288,14 @@ class DatabaseTests(unittest.TestCase):
         node_2 = element.Node(0,0,1)
         #bar = element.Bar(node_1, node_2, properties.Section.default(), vector3d.Vector3d([0,1,0]), 'XXXXXX', 'XXXXXX', 'Test_Bar')
 
-        bar = element.Bar(node_1, node_2, properties.Section.default(), [0,1,0], True, 'XXXXXX', 'Test_Bar')
+        bar = element.Bar(node_1, node_2, properties.Section.default(), [0,1,0], 'XXXXXX', 'XXXXXX', 'Test_Bar')
 
         self.structural_model.add(bar)
         self.structural_model.add(bar)
+    
+    def test_get_object(self):
+
+        data = self.structural_model.get('bar', '1')
 
     def tearDown(self):
         self.structural_model.close_connection()

@@ -56,13 +56,7 @@ class UpdateMixin:
         INSERT INTO model_info (
             version,
             user, 
-            date, 
-            nodes, 
-            bars, 
-            sections, 
-            materials, 
-            loads, 
-            supports, 
+            date,  
             errors, 
             warnings, 
             run_time) 
@@ -73,12 +67,6 @@ class UpdateMixin:
         version_value_string = (self.version,
                                 self.user,
                                 datetime.datetime.now(),
-                                self.get_node_count(),
-                                self.get_bar_count(),
-                                self.get_section_count(),
-                                self.get_material_count(),
-                                self.get_pointload_count(),
-                                self.get_support_count(),
                                 None, #TODO
                                 None, #TODO
                                 self.runtime

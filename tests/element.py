@@ -4,15 +4,13 @@ Contains the object classes for element objects of the structural model.
 import uuid
 import numpy as np
 
-from ..geometry import vector3d # pylint: disable=import-error
-from ..geometry import plane # pylint: disable=import-error
-from . import properties # pylint: disable=import-error
+
+import properties # pylint: disable=import-error
 
 class ElementBase:
 
     def __init__(self, data_string=''):
-        self.type = 'element'
-        self.data = data_string
+        pass
 
 
 class Node(ElementBase):

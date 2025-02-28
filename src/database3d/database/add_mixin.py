@@ -53,11 +53,11 @@ class WriteMixin:
         table_name = model_object.__class__.__name__.lower()
         attribute_dictionary = model_object.__dict__
 
-        self.build_table(model_object)
+        attributes = self.build_object_table(model_object)[1]
+        attribute_names = ','.join(attributes)
 
-        attribute_names = ','.join([attribute_name.lower()  for attribute_name in attribute_dictionary.keys()])
+        query = f'INSERT INTO {table_name} ({attribute_names})VALUES({'?,'*(len(attributes)-1)}?)'
 
-        query = f'INSERT INTO {table_name} ({attribute_names})VALUES({'?,'*(len(attribute_dictionary.keys())-1)}?)'
         values = []
 
         for attribute in attribute_dictionary.items():
@@ -87,7 +87,7 @@ class WriteMixin:
                     attribute_value = self.add(attribute_value)
             
             values.append(attribute_value)
-                
+
         self.cursor.execute(query, values)
 
         if object_id == None:
