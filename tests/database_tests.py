@@ -28,15 +28,8 @@ class DatabaseTests(unittest.TestCase):
 
         node_1 = element.Node(0,0,0)
         node_2 = element.Node(0,0,1)
-        #bar = element.Bar(node_1, node_2, properties.Section.default(), vector3d.Vector3d([0,1,0]), 'XXXXXX', 'XXXXXX', 'Test_Bar')
 
-
-        class_name = "Bar"
-        bar_cls = self.structural_model.get_class(class_name)[0]
-
-        #bar = element.Bar(node_1, node_2, properties.Section.default(), [0,1,0], 'XXXXXX', 'XXXXXX', 'Test_Bar')
-
-        bar = bar_cls(node_1, node_2, properties.Section.default(), [0,1,0], 'XXXXXX', 'XXXXXX', 'Test_Bar')
+        bar = element.Bar(node_1, node_2, properties.Section.default(), [0,1,0], 'XXXXXX', 'XXXXXX', 'Test_Bar')
 
 
         self.structural_model.add(bar)
@@ -46,6 +39,26 @@ class DatabaseTests(unittest.TestCase):
         pass
 
         data = self.structural_model.get('bar', '1')
+    
+
+    def test_update_object_parameter_string(self):
+
+        data = self.structural_model.update_object_paramter('bar', 1, 'section', 'new_material')
+
+    def test_update_object_parameter_class(self):
+
+        new_material = properties.Material('Concrete',263000,0.2,12000,0.00006,0,25,'Concrete')
+
+        data = self.structural_model.update_object_paramter('bar', 2, 'section', new_material)
+    
+    def test_update_object_paramater_special_index(self):
+
+        data = self.structural_model.update_object_paramter('material', 'steel', 'region', 'USA')
+
+    def test_zdelete_object(self):
+        pass
+        
+        #data = self.structural_model.delete_object('bar', 2)
 
     def tearDown(self):
         self.structural_model.close_connection()

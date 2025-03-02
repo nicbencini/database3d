@@ -11,20 +11,18 @@ class ReadMixin:
 
     def get_version(self):
         
-        result = self.cursor.execute("SELECT * FROM model_info").fetchall()
+        result = self.cursor.execute("SELECT * FROM _model_info").fetchall()
 
         if len(result) == 0:
             return '0.0.0'
 
-        return result[-1][0]
-    
+        return result[-1][0]    
     
     def get(self, table_name, object_id):
 
-        row_data = self.cursor.execute(f"PRAGMA table_info({table_name})").fetchall()
-        column_names = [row[1] for row in row_data]
+        column_names = self.get_table_columns(table_name)
 
-        types_data = self.cursor.execute(f"SELECT * FROM types_info WHERE table_name = ?",[table_name]).fetchone()[1]
+        types_data = self.cursor.execute(f"SELECT * FROM _model_types WHERE table_name = ?",[table_name]).fetchone()[1]
 
         types_dictionary = json.loads(types_data)
 

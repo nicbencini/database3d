@@ -2,8 +2,7 @@
 Description
 """
 
-import warnings
-import sqlite3
+
 import numpy as np
 import datetime
 import json
@@ -26,7 +25,7 @@ class WriteMixin:
         cur = self.connection.cursor()
 
         version_query = """
-        INSERT INTO model_log (
+        INSERT INTO _model_log (
             version,
             user, 
             date,
@@ -48,7 +47,8 @@ class WriteMixin:
 
     
     def add(self, model_object):
-        
+
+       
         object_id = None
         table_name = model_object.__class__.__name__.lower()
         attribute_dictionary = model_object.__dict__
@@ -75,7 +75,8 @@ class WriteMixin:
                 if check_result is not None:
                     return object_id
 
-            if (not isinstance(attribute_value, int) and 
+            if (attribute_value is not None and
+                not isinstance(attribute_value, int) and 
                 not isinstance(attribute_value, float) and 
                 not isinstance(attribute_value, str) and
                 not isinstance(attribute_value, bool)

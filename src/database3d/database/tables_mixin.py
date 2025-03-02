@@ -39,11 +39,17 @@ class TablesMixin:
         tables = self.cursor.fetchall()
         return tables
 
+    def get_table_columns(self, table_name):
+        table_data = self.cursor.execute(f"PRAGMA table_info({table_name})")
+        columns = [column[1] for column in table_data.fetchall()]
+
+        return columns
+
     def build_info_table(self):
 
         # create the database table if it doesn't exist
         info_table_schema = """
-        CREATE TABLE IF NOT EXISTS model_info (
+        CREATE TABLE IF NOT EXISTS _model_info (
             version TEXT PRIMARY KEY,
             user TEXT NOT NULL,
             date timestamp NOT NULL,
@@ -58,7 +64,7 @@ class TablesMixin:
 
         # create the database table if it doesn't exist
         info_table_schema = """
-        CREATE TABLE IF NOT EXISTS types_info (
+        CREATE TABLE IF NOT EXISTS _model_types (
             table_name TEXT PRIMARY KEY,
             types TEXT NOT NULL
             );
@@ -69,7 +75,7 @@ class TablesMixin:
 
         # create the database table if it doesn't exist
         table_schema = """
-        CREATE TABLE IF NOT EXISTS model_log (
+        CREATE TABLE IF NOT EXISTS _model_log (
             version TEXT NOT NULL,
             user TEXT NOT NULL,
             date timestamp NOT NULL,
@@ -97,7 +103,10 @@ class TablesMixin:
                 attribute_value_type = 'NULL'
                 primary_key = ''
 
-                if isinstance(attribute_value, int):
+                if attribute_value is None:
+                    attribute_value_type = 'TEXT'
+                    types_dictionary[attribute_name] = ('TEXT', str.__name__)
+                elif isinstance(attribute_value, int):
                     attribute_value_type = 'INTEGER'
                     types_dictionary[attribute_name] = ('INTEGER',int.__name__)
                 elif isinstance(attribute_value, float):
@@ -126,7 +135,7 @@ class TablesMixin:
             
             attribute_string = ','.join(attribute_string_list)
 
-            query = f'INSERT OR IGNORE INTO types_info (table_name,types)VALUES(?,?)'
+            query = f'INSERT OR IGNORE INTO _model_types (table_name,types)VALUES(?,?)'
             values = [table_name, json.dumps(types_dictionary)]
 
             self.cursor.execute(query, values)

@@ -1,4 +1,6 @@
 import datetime
+import json
+from collections.abc import Iterable
 
 class UpdateMixin:
 
@@ -20,7 +22,7 @@ class UpdateMixin:
 
 
         version_query = """
-        INSERT INTO model_log (
+        INSERT INTO _model_log (
             version,
             user, 
             date,
@@ -37,8 +39,6 @@ class UpdateMixin:
                                     )
 
             self.cursor.execute(version_query, version_value_string)
-
-
 
 
     def update_model_info(self):
@@ -73,6 +73,37 @@ class UpdateMixin:
                                 )
 
         self.cursor.execute(version_query, version_value_string)
+    
+    def update_object_paramter(self, table_name, object_id, parameter, new_value):
+
+        column_names = self.get_table_columns(table_name)
+        index_column = 'ROWID'
+
+        if '_id' in column_names:
+            index_column = '_id'
+ 
+        update_query = f'UPDATE {table_name} SET {parameter} = ? WHERE {index_column} = ?;'
+
+        if (isinstance(new_value, int) or 
+            isinstance(new_value, float) or 
+            isinstance(new_value, str) or
+            isinstance(new_value, bool)
+            ):
+            attribute_value = str(new_value)     
+            
+        elif isinstance(new_value, Iterable):
+            attribute_value = json.dumps(attribute_value)
+        
+        else:
+            attribute_value = self.add(new_value)
+     
+        
+        self.cursor.execute(update_query, (attribute_value, object_id))
+
+        self.events.append(f'updated: {table_name} id = {object_id}')
+    
+
+
 
     
     
