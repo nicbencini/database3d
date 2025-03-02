@@ -99,25 +99,24 @@ class TablesMixin:
 
                 if isinstance(attribute_value, int):
                     attribute_value_type = 'INTEGER'
-                    types_dictionary[attribute_name] = 'INTEGER'
+                    types_dictionary[attribute_name] = ('INTEGER',int.__name__)
                 elif isinstance(attribute_value, float):
                     attribute_value_type = 'FLOAT'
-                    types_dictionary[attribute_name] = 'FLOAT'
+                    types_dictionary[attribute_name] = ('FLOAT', float.__name__)
                 elif isinstance(attribute_value, str):
                     attribute_value_type = 'TEXT'
-                    types_dictionary[attribute_name] = 'TEXT'
+                    types_dictionary[attribute_name] = ('TEXT', str.__name__)
                 elif isinstance(attribute_value, bool):
                     attribute_value_type = 'BOOL'
-                    types_dictionary[attribute_name] = 'BOOL'
+                    types_dictionary[attribute_name] = ('BOOL', bool.__name__)
                 elif isinstance(attribute_value, Iterable):
                     attribute_value_type = 'TEXT'
-                    types_dictionary[attribute_name] = 'ITER'
+                    types_dictionary[attribute_name] = ('ITER' , type(attribute_value).__name__)
                 else:
                     type_name = self.build_object_table(attribute_value)[0]
                     attribute_value_type = 'INTEGER'
-                    types_dictionary[attribute_name] = type_name
+                    types_dictionary[attribute_name] = (type_name, type(attribute_value).__name__)
                 
-
                 
                 if attribute_name == '_id':
                     primary_key = ' NOT NULL PRIMARY KEY'
@@ -125,8 +124,6 @@ class TablesMixin:
                 column_names.append(attribute_name)
                 attribute_string_list.append(f'{attribute_name} {attribute_value_type}{primary_key}')
             
-            #attribute_string_list.append('type_data TEXT')
-            #column_names.append('type_data')
             attribute_string = ','.join(attribute_string_list)
 
             query = f'INSERT OR IGNORE INTO types_info (table_name,types)VALUES(?,?)'

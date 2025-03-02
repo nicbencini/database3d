@@ -5,6 +5,7 @@ import sqlite3
 import numpy as np
 import json
 from collections.abc import Iterable
+import sys
 
 class ReadMixin:
 
@@ -41,7 +42,8 @@ class ReadMixin:
 
             attribute_name = attribute[0]
             attribute_value = attribute[1]
-            attribute_type = types_dictionary[attribute_name]
+            attribute_type = types_dictionary[attribute_name][0]
+            attribute_class = types_dictionary[attribute_name][1]
 
             if attribute_type == 'TEXT':
                 attributes.append(attribute_value)
@@ -58,47 +60,21 @@ class ReadMixin:
         
         return attributes
 
-
-
     
-    
-    """
-    def get_bar(self, bar_name):
-
-
-        bar_data = self.cursor.execute("SELECT * FROM element_bar WHERE _id = ?",[bar_name]).fetchone()
-        bar_data = list(bar_data)
-
-        id = bar_data[0]
-        node_a = self.get_node(bar_data[1])
-        node_b = self.get_node(bar_data[2])
-        section = self.get_section(bar_data[3])
-
-        orientation_vector = str.replace(bar_data[4],'[','')
-        orientation_vector = str.replace(orientation_vector,']','')
-        orientation_vector = str.split(orientation_vector,' ')
-
-        orientation_vector = np.array([float(orientation_vector[0]),
-                                        float(orientation_vector[1]),
-                                        float(orientation_vector[2])]
-                                        )
-
-        release_a = bar_data[5]
-        release_b = bar_data[6]
-
-        bar_data = bar_data[7]
-
-        bar_object = element.Bar(node_a,
-                                    node_b,
-                                    section,
-                                    orientation_vector,
-                                    release_a,
-                                    release_b,
-                                    id,
-                                    bar_data)
-
-        return bar_object
-    """
+    @staticmethod
+    def get_class(class_name):
+        for module_name, module in sys.modules.items():
+            if module:  # Some modules might be None
+                try:
+                    if hasattr(module, class_name):
+                        cls = getattr(module, class_name)
+                        if isinstance(cls, type):  # Ensure it's a class
+                            return cls, module_name
+                except Exception:
+                    pass  # Ignore any errors accessing attributes
+        
+        return None, None  # Class not found
+   
     
     
     def get_pointload_count(self):
