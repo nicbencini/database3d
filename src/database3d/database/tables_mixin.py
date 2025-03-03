@@ -1,6 +1,7 @@
 """
-Containse the functions for building the tables in the SQLite database model.
+Contains functions for building and managing tables in the SQLite database model.
 """
+
 import sqlite3
 import json
 from collections.abc import Iterable
@@ -9,14 +10,12 @@ class TablesMixin:
 
     def build_tables(self):
         """
-        Creates the following tables for the SQLite database model: 
+        Creates the necessary tables for the SQLite database model: 
 
-        - model_info
-        - model_log
-
-        Parameters:
-        None
-
+        - _model_info
+        - _model_log
+        - _model_types
+        
         Returns:
         None
         """
@@ -28,6 +27,12 @@ class TablesMixin:
        
     
     def clear_all_tables(self):
+        """
+        Deletes all records from all tables in the database.
+        
+        Returns:
+        None
+        """
 
         tables = self.get_tables()
         for table, in tables:
@@ -35,15 +40,42 @@ class TablesMixin:
             self.cursor.execute(f"DELETE FROM {table}")
         
     def get_tables(self):
+        """
+        Retrieves the names of all tables in the database.
+        
+        Returns:
+        list: A list of table names.
+        """
         self.cursor.execute("SELECT name FROM sqlite_schema WHERE type='table';")
         tables = self.cursor.fetchall()
         return tables
 
+    def get_table_columns(self, table_name):
+        """
+        Retrieves the column names for a given table.
+        
+        Parameters:
+        table_name (str): The name of the table.
+        
+        Returns:
+        list: A list of column names.
+        """
+        table_data = self.cursor.execute(f"PRAGMA table_info({table_name})")
+        columns = [column[1] for column in table_data.fetchall()]
+
+        return columns
+
     def build_info_table(self):
+        """
+        Creates the _model_info table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         info_table_schema = """
-        CREATE TABLE IF NOT EXISTS model_info (
+        CREATE TABLE IF NOT EXISTS _model_info (
             version TEXT PRIMARY KEY,
             user TEXT NOT NULL,
             date timestamp NOT NULL,
@@ -55,10 +87,16 @@ class TablesMixin:
         self.cursor.execute(info_table_schema)
 
     def build_types_table(self):
+        """
+        Creates the _model_types table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         info_table_schema = """
-        CREATE TABLE IF NOT EXISTS types_info (
+        CREATE TABLE IF NOT EXISTS _model_types (
             table_name TEXT PRIMARY KEY,
             types TEXT NOT NULL
             );
@@ -66,10 +104,16 @@ class TablesMixin:
         self.cursor.execute(info_table_schema)
 
     def build_log_table(self):
+        """
+        Creates the _model_log table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         table_schema = """
-        CREATE TABLE IF NOT EXISTS model_log (
+        CREATE TABLE IF NOT EXISTS _model_log (
             version TEXT NOT NULL,
             user TEXT NOT NULL,
             date timestamp NOT NULL,
@@ -80,6 +124,15 @@ class TablesMixin:
 
 
     def build_object_table(self, model_object):
+        """
+        Dynamically creates a table based on the attributes of a given object.
+        
+        Parameters:
+        model_object (object): The object whose attributes define the table schema.
+        
+        Returns:
+        list: A list containing the table name and its column names.
+        """
 
         table_name = model_object.__class__.__name__.lower()
         attribute_string = 'value TEXT'
@@ -97,27 +150,29 @@ class TablesMixin:
                 attribute_value_type = 'NULL'
                 primary_key = ''
 
-                if isinstance(attribute_value, int):
+                if attribute_value is None:
+                    attribute_value_type = 'TEXT'
+                    types_dictionary[attribute_name] = ('TEXT', str.__name__)
+                elif isinstance(attribute_value, int):
                     attribute_value_type = 'INTEGER'
-                    types_dictionary[attribute_name] = 'INTEGER'
+                    types_dictionary[attribute_name] = ('INTEGER',int.__name__)
                 elif isinstance(attribute_value, float):
                     attribute_value_type = 'FLOAT'
-                    types_dictionary[attribute_name] = 'FLOAT'
+                    types_dictionary[attribute_name] = ('FLOAT', float.__name__)
                 elif isinstance(attribute_value, str):
                     attribute_value_type = 'TEXT'
-                    types_dictionary[attribute_name] = 'TEXT'
+                    types_dictionary[attribute_name] = ('TEXT', str.__name__)
                 elif isinstance(attribute_value, bool):
                     attribute_value_type = 'BOOL'
-                    types_dictionary[attribute_name] = 'BOOL'
+                    types_dictionary[attribute_name] = ('BOOL', bool.__name__)
                 elif isinstance(attribute_value, Iterable):
                     attribute_value_type = 'TEXT'
-                    types_dictionary[attribute_name] = 'ITER'
+                    types_dictionary[attribute_name] = ('ITER' , type(attribute_value).__name__)
                 else:
                     type_name = self.build_object_table(attribute_value)[0]
                     attribute_value_type = 'INTEGER'
-                    types_dictionary[attribute_name] = type_name
+                    types_dictionary[attribute_name] = (type_name, type(attribute_value).__name__)
                 
-
                 
                 if attribute_name == '_id':
                     primary_key = ' NOT NULL PRIMARY KEY'
@@ -125,11 +180,9 @@ class TablesMixin:
                 column_names.append(attribute_name)
                 attribute_string_list.append(f'{attribute_name} {attribute_value_type}{primary_key}')
             
-            #attribute_string_list.append('type_data TEXT')
-            #column_names.append('type_data')
             attribute_string = ','.join(attribute_string_list)
 
-            query = f'INSERT OR IGNORE INTO types_info (table_name,types)VALUES(?,?)'
+            query = f'INSERT OR IGNORE INTO _model_types (table_name,types)VALUES(?,?)'
             values = [table_name, json.dumps(types_dictionary)]
 
             self.cursor.execute(query, values)
