@@ -1,6 +1,7 @@
 """
-Containse the functions for building the tables in the SQLite database model.
+Contains functions for building and managing tables in the SQLite database model.
 """
+
 import sqlite3
 import json
 from collections.abc import Iterable
@@ -9,14 +10,12 @@ class TablesMixin:
 
     def build_tables(self):
         """
-        Creates the following tables for the SQLite database model: 
+        Creates the necessary tables for the SQLite database model: 
 
-        - model_info
-        - model_log
-
-        Parameters:
-        None
-
+        - _model_info
+        - _model_log
+        - _model_types
+        
         Returns:
         None
         """
@@ -28,6 +27,12 @@ class TablesMixin:
        
     
     def clear_all_tables(self):
+        """
+        Deletes all records from all tables in the database.
+        
+        Returns:
+        None
+        """
 
         tables = self.get_tables()
         for table, in tables:
@@ -35,17 +40,38 @@ class TablesMixin:
             self.cursor.execute(f"DELETE FROM {table}")
         
     def get_tables(self):
+        """
+        Retrieves the names of all tables in the database.
+        
+        Returns:
+        list: A list of table names.
+        """
         self.cursor.execute("SELECT name FROM sqlite_schema WHERE type='table';")
         tables = self.cursor.fetchall()
         return tables
 
     def get_table_columns(self, table_name):
+        """
+        Retrieves the column names for a given table.
+        
+        Parameters:
+        table_name (str): The name of the table.
+        
+        Returns:
+        list: A list of column names.
+        """
         table_data = self.cursor.execute(f"PRAGMA table_info({table_name})")
         columns = [column[1] for column in table_data.fetchall()]
 
         return columns
 
     def build_info_table(self):
+        """
+        Creates the _model_info table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         info_table_schema = """
@@ -61,6 +87,12 @@ class TablesMixin:
         self.cursor.execute(info_table_schema)
 
     def build_types_table(self):
+        """
+        Creates the _model_types table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         info_table_schema = """
@@ -72,6 +104,12 @@ class TablesMixin:
         self.cursor.execute(info_table_schema)
 
     def build_log_table(self):
+        """
+        Creates the _model_log table if it does not already exist.
+        
+        Returns:
+        None
+        """
 
         # create the database table if it doesn't exist
         table_schema = """
@@ -86,6 +124,15 @@ class TablesMixin:
 
 
     def build_object_table(self, model_object):
+        """
+        Dynamically creates a table based on the attributes of a given object.
+        
+        Parameters:
+        model_object (object): The object whose attributes define the table schema.
+        
+        Returns:
+        list: A list containing the table name and its column names.
+        """
 
         table_name = model_object.__class__.__name__.lower()
         attribute_string = 'value TEXT'
