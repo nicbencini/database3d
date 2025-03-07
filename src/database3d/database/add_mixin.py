@@ -1,5 +1,5 @@
 """
-This module contains the WriteMixin class which provides methods to log events and add model objects to the database.
+Description
 """
 
 
@@ -10,16 +10,13 @@ from collections.abc import Iterable
 
 
 class WriteMixin:
-    """
-    A mixin class that provides methods to log events and add model objects to the database.
-    """
 
     def add_log(self, event_message):
         """
         Logs a model event.
-
+        
         Parameters:
-        event_message (str): The event message to be logged.
+        None
 
         Returns:
         None
@@ -50,15 +47,7 @@ class WriteMixin:
 
     
     def add(self, model_object):
-        """
-        Adds a model object to the database.
 
-        Parameters:
-        model_object (object): The model object to be added.
-
-        Returns:
-        int: The ID of the added model object.
-        """
        
         object_id = None
         table_name = model_object.__class__.__name__.lower()
@@ -108,7 +97,7 @@ class WriteMixin:
         self.events.append(f'added: {table_name} id = {object_id}')
 
         return object_id
-
+        
 
 
 
